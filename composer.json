@@ -1,7 +1,8 @@
 {
     "name": "workivate/php-saml",
-    "description": "OneLogin PHP SAML Toolkit",
+    "description": "Workivate version of OneLogin PHP SAML Toolkit",
     "license": "MIT",
+    "version": "3.0.2",
     "homepage": "https://developers.onelogin.com/saml/php",
     "keywords": ["saml", "saml2", "onelogin"],
     "autoload": {
