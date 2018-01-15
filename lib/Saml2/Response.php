@@ -251,6 +251,7 @@ class OneLogin_Saml2_Response
             }
 
             // Check audience
+            /*
             $validAudiences = $this->getAudiences();
             if (!empty($validAudiences) && !in_array($spEntityId, $validAudiences, true)) {
                 throw new OneLogin_Saml2_ValidationError(
@@ -262,6 +263,7 @@ class OneLogin_Saml2_Response
                     OneLogin_Saml2_ValidationError::WRONG_AUDIENCE
                 );
             }
+            */
 
             // Check the issuers
             $issuers = $this->getIssuers();
