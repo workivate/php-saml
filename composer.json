@@ -2,6 +2,7 @@
     "name": "workivate/php-saml",
     "description": "Workivate version of OneLogin PHP SAML Toolkit",
     "license": "MIT",
+    "version": "3.0.4",
     "homepage": "https://developers.onelogin.com/saml/php",
     "keywords": ["saml", "saml2", "onelogin"],
     "autoload": {
@@ -13,8 +14,8 @@
     },
     "support": {
         "email": "sixto.garcia@onelogin.com",
-        "issues": "https://github.com/onelogin/php-saml/issues",
-        "source": "https://github.com/onelogin/php-saml/"
+        "issues": "https://github.com/workivate/php-saml/issues",
+        "source": "https://github.com/workivate/php-saml/"
     },
     "require": {
         "php": ">=5.3.2 <7.2",
