@@ -294,7 +294,8 @@ class Response
 
                 // Check audience
                 $validAudiences = $this->getAudiences();
-                if (!empty($validAudiences) && !in_array($spEntityId, $validAudiences, true)) {
+                $security = $this->_settings->getSecurityData();
+                if ($security['wantAudienceValidation'] && !empty($validAudiences) && !in_array($spEntityId, $validAudiences, true)) {
                     throw new ValidationError(
                         sprintf(
                             "Invalid audience for this Response (expected '%s', got '%s')",

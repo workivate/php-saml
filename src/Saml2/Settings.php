@@ -446,6 +446,10 @@ class Settings
         if (!isset($this->_sp['privateKey'])) {
             $this->_sp['privateKey'] = '';
         }
+
+        if (!isset($this->_security['wantAudienceValidation'])) {
+            $this->_security['wantAudienceValidation'] = true;
+        }
     }
 
     /**
