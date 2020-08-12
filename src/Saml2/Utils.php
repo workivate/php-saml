@@ -353,7 +353,11 @@ class Utils
         header('Pragma: no-cache');
         header('Cache-Control: no-cache, must-revalidate');
         header('Location: ' . $url);
-        exit();
+        if (getenv('IS_TESTING') !== 'yes') {
+            exit();
+        } else {
+            throw new Exception('Redirect: ' . $url);
+        }
     }
 
      /**

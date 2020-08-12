@@ -1,4 +1,7 @@
 <phpunit bootstrap="./tests/bootstrap.php" colors="true">
+    <php>
+        <env name="IS_TESTING" value="yes"/>
+    </php>
     <testsuites>
         <testsuite name="OneLogin PHP-SAML Test Suite">
             <directory>./tests/src</directory>

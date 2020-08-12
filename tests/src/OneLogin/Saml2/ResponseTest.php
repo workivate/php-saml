@@ -1231,7 +1231,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('No Signature found. SAML Response rejected', $response3->getError());
 
         $response4 = new Response($this->_settings, $message4);
-        $response3->isValid();
+        $response4->isValid();
         $this->assertEquals('No Signature found. SAML Response rejected', $response3->getError());
 
         $response5 = new Response($this->_settings, $message5);
