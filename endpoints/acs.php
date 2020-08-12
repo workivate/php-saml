@@ -1,5 +1,5 @@
 <?php
-
+ 
 /**
  *  SP Assertion Consumer Service Endpoint
  */
@@ -8,25 +8,28 @@ session_start();
 
 require_once dirname(__DIR__).'/_toolkit_loader.php';
 
-$auth = new OneLogin_Saml2_Auth();
+use OneLogin\Saml2\Auth;
+use OneLogin\Saml2\Utils;
+
+$auth = new Auth();
 
 $auth->processResponse();
 
 $errors = $auth->getErrors();
 
 if (!empty($errors)) {
-    echo '<p>', implode(', ', $errors), '</p>';
+    echo '<p>' . implode(', ', $errors) . '</p>';
     exit();
 }
 
 if (!$auth->isAuthenticated()) {
-    echo "<p>Not authenticated</p>";
+    echo '<p>Not authenticated</p>';
     exit();
 }
 
 $_SESSION['samlUserdata'] = $auth->getAttributes();
 $_SESSION['IdPSessionIndex'] = $auth->getSessionIndex();
-if (isset($_POST['RelayState']) && OneLogin_Saml2_Utils::getSelfURL() != $_POST['RelayState']) {
+if (isset($_POST['RelayState']) && Utils::getSelfURL() != $_POST['RelayState']) {
     $auth->redirectTo($_POST['RelayState']);
 }
 
