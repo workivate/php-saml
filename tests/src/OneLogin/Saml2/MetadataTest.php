@@ -1,28 +1,39 @@
 <?php
 
+namespace OneLogin\Saml2\Tests;
+
+use OneLogin\Saml2\Metadata;
+use OneLogin\Saml2\Settings;
+use OneLogin\Saml2\Utils;
+
+use RobRichards\XMLSecLibs\XMLSecurityKey;
+use RobRichards\XMLSecLibs\XMLSecurityDSig;
+
+use Exception;
+
 /**
  * Unit tests for Metadata class
  */
-class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
+class MetadataTest extends \PHPUnit\Framework\TestCase
 {
 
     /**
-    * Tests the builder method of the OneLogin_Saml2_Metadata
-    *
-    * @covers OneLogin_Saml2_Metadata::builder
-    */
+     * Tests the builder method of the Metadata
+     *
+     * @covers OneLogin\Saml2\Metadata::builder
+     */
     public function testBuilder()
     {
         $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
-        $settings = new OneLogin_Saml2_Settings($settingsInfo);
+        $settings = new Settings($settingsInfo);
         $spData = $settings->getSPData();
         $security = $settings->getSecurityData();
         $organization = $settings->getOrganization();
         $contacts = $settings->getContacts();
 
-        $metadata = OneLogin_Saml2_Metadata::builder($spData, $security['authnRequestsSigned'], $security['wantAssertionsSigned'], null, null, $contacts, $organization);
+        $metadata = Metadata::builder($spData, $security['authnRequestsSigned'], $security['wantAssertionsSigned'], null, null, $contacts, $organization);
 
         $this->assertNotEmpty($metadata);
 
@@ -46,7 +57,7 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
         $security['wantAssertionsSigned'] = true;
         unset($spData['singleLogoutService']);
 
-        $metadata2 = OneLogin_Saml2_Metadata::builder($spData, $security['authnRequestsSigned'], $security['wantAssertionsSigned']);
+        $metadata2 = Metadata::builder($spData, $security['authnRequestsSigned'], $security['wantAssertionsSigned']);
 
         $this->assertNotEmpty($metadata2);
 
@@ -58,47 +69,47 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-    * Tests the builder method of the OneLogin_Saml2_Metadata
-    *
-    * @covers OneLogin_Saml2_Metadata::builder
-    */
+     * Tests the builder method of the Metadata
+     *
+     * @covers OneLogin\Saml2\Metadata::builder
+     */
     public function testBuilderWithAttributeConsumingService()
     {
         $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings3.php';
-        $settings = new OneLogin_Saml2_Settings($settingsInfo);
+        $settings = new Settings($settingsInfo);
         $spData = $settings->getSPData();
         $security = $settings->getSecurityData();
         $organization = $settings->getOrganization();
         $contacts = $settings->getContacts();
 
-        $metadata = OneLogin_Saml2_Metadata::builder($spData, $security['authnRequestsSigned'], $security['wantAssertionsSigned'], null, null, $contacts, $organization);
+        $metadata = Metadata::builder($spData, $security['authnRequestsSigned'], $security['wantAssertionsSigned'], null, null, $contacts, $organization);
 
         $this->assertContains('<md:ServiceName xml:lang="en">Service Name</md:ServiceName>', $metadata);
         $this->assertContains('<md:ServiceDescription xml:lang="en">Service Description</md:ServiceDescription>', $metadata);
         $this->assertContains('<md:RequestedAttribute Name="FirstName" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" isRequired="true" />', $metadata);
         $this->assertContains('<md:RequestedAttribute Name="LastName" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" isRequired="true" />', $metadata);
 
-        $result = \OneLogin_Saml2_Utils::validateXML($metadata, 'saml-schema-metadata-2.0.xsd');
+        $result = Utils::validateXML($metadata, 'saml-schema-metadata-2.0.xsd');
         $this->assertInstanceOf('DOMDocument', $result);
     }
 
     /**
-    * Tests the builder method of the OneLogin_Saml2_Metadata
-    *
-    * @covers OneLogin_Saml2_Metadata::builder
-    */
+     * Tests the builder method of the Metadata
+     *
+     * @covers OneLogin\Saml2\Metadata::builder
+     */
     public function testBuilderWithAttributeConsumingServiceWithMultipleAttributeValue()
     {
         $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings4.php';
-        $settings = new OneLogin_Saml2_Settings($settingsInfo);
+        $settings = new Settings($settingsInfo);
         $spData = $settings->getSPData();
         $security = $settings->getSecurityData();
         $organization = $settings->getOrganization();
         $contacts = $settings->getContacts();
 
-        $metadata = OneLogin_Saml2_Metadata::builder($spData, $security['authnRequestsSigned'], $security['wantAssertionsSigned'], null, null, $contacts, $organization);
+        $metadata = Metadata::builder($spData, $security['authnRequestsSigned'], $security['wantAssertionsSigned'], null, null, $contacts, $organization);
 
         $this->assertContains('<md:ServiceName xml:lang="en">Service Name</md:ServiceName>', $metadata);
         $this->assertContains('<md:ServiceDescription xml:lang="en">Service Description</md:ServiceDescription>', $metadata);
@@ -106,25 +117,25 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
         $this->assertContains('<saml:AttributeValue xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">userType</saml:AttributeValue>', $metadata);
         $this->assertContains('<saml:AttributeValue xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">admin</saml:AttributeValue>', $metadata);
 
-        $result = \OneLogin_Saml2_Utils::validateXML($metadata, 'saml-schema-metadata-2.0.xsd');
+        $result = Utils::validateXML($metadata, 'saml-schema-metadata-2.0.xsd');
         $this->assertInstanceOf('DOMDocument', $result);
     }
 
     /**
-    * Tests the signMetadata method of the OneLogin_Saml2_Metadata
-    *
-    * @covers OneLogin_Saml2_Metadata::signMetadata
-    */
+     * Tests the signMetadata method of the Metadata
+     *
+     * @covers OneLogin\Saml2\Metadata::signMetadata
+     */
     public function testSignMetadata()
     {
         $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
-        $settings = new OneLogin_Saml2_Settings($settingsInfo);
+        $settings = new Settings($settingsInfo);
         $spData = $settings->getSPData();
         $security = $settings->getSecurityData();
 
-        $metadata = OneLogin_Saml2_Metadata::builder($spData, $security['authnRequestsSigned'], $security['wantAssertionsSigned']);
+        $metadata = Metadata::builder($spData, $security['authnRequestsSigned'], $security['wantAssertionsSigned']);
 
         $this->assertNotEmpty($metadata);
 
@@ -132,7 +143,7 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
         $key = file_get_contents($certPath.'sp.key');
         $cert = file_get_contents($certPath.'sp.crt');
 
-        $signedMetadata = OneLogin_Saml2_Metadata::signMetadata($metadata, $key, $cert);
+        $signedMetadata = Metadata::signMetadata($metadata, $key, $cert);
 
         $this->assertContains('<md:SPSSODescriptor', $signedMetadata);
         $this->assertContains('entityID="http://stuff.com/endpoints/metadata.php"', $signedMetadata);
@@ -147,12 +158,12 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
         $this->assertContains('<md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat>', $signedMetadata);
 
         $this->assertContains('<ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>', $signedMetadata);
-        $this->assertContains('<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>', $signedMetadata);
+        $this->assertContains('<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>', $signedMetadata);
         $this->assertContains('<ds:Reference', $signedMetadata);
         $this->assertContains('<ds:KeyInfo><ds:X509Data><ds:X509Certificate>', $signedMetadata);
 
         try {
-            $signedMetadata2 = OneLogin_Saml2_Metadata::signMetadata('', $key, $cert);
+            $signedMetadata2 = Metadata::signMetadata('', $key, $cert);
             $this->fail('Exception was not raised');
         } catch (Exception $e) {
             $this->assertContains('Empty string supplied as input', $e->getMessage());
@@ -160,71 +171,71 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-    * Tests the signMetadata method of the OneLogin_Saml2_Metadata
-    *
-    * @covers OneLogin_Saml2_Metadata::signMetadata
-    */
+     * Tests the signMetadata method of the Metadata
+     *
+     * @covers OneLogin\Saml2\Metadata::signMetadata
+     */
     public function testSignMetadataDefaultAlgorithms()
     {
         $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
-        $settings = new OneLogin_Saml2_Settings($settingsInfo);
+        $settings = new Settings($settingsInfo);
         $spData = $settings->getSPData();
         $security = $settings->getSecurityData();
 
-        $metadata = OneLogin_Saml2_Metadata::builder($spData, $security['authnRequestsSigned'], $security['wantAssertionsSigned']);
+        $metadata = Metadata::builder($spData, $security['authnRequestsSigned'], $security['wantAssertionsSigned']);
 
         $certPath = $settings->getCertPath();
         $key = file_get_contents($certPath.'sp.key');
         $cert = file_get_contents($certPath.'sp.crt');
 
-        $signedMetadata = OneLogin_Saml2_Metadata::signMetadata($metadata, $key, $cert);
+        $signedMetadata = Metadata::signMetadata($metadata, $key, $cert);
 
-        $this->assertContains('<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>', $signedMetadata);
-        $this->assertContains('<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>', $signedMetadata);
+        $this->assertContains('<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>', $signedMetadata);
+        $this->assertContains('<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>', $signedMetadata);
     }
 
     /**
-    * Tests the signMetadata method of the OneLogin_Saml2_Metadata
-    *
-    * @covers OneLogin_Saml2_Metadata::signMetadata
-    */
+     * Tests the signMetadata method of the Metadata
+     *
+     * @covers OneLogin\Saml2\Metadata::signMetadata
+     */
     public function testSignMetadataCustomAlgorithms()
     {
         $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
-        $settings = new OneLogin_Saml2_Settings($settingsInfo);
+        $settings = new Settings($settingsInfo);
         $spData = $settings->getSPData();
         $security = $settings->getSecurityData();
 
-        $metadata = OneLogin_Saml2_Metadata::builder($spData, $security['authnRequestsSigned'], $security['wantAssertionsSigned']);
+        $metadata = Metadata::builder($spData, $security['authnRequestsSigned'], $security['wantAssertionsSigned']);
 
         $certPath = $settings->getCertPath();
         $key = file_get_contents($certPath.'sp.key');
         $cert = file_get_contents($certPath.'sp.crt');
 
-        $signedMetadata = OneLogin_Saml2_Metadata::signMetadata($metadata, $key, $cert, XMLSecurityKey::RSA_SHA256, XMLSecurityDSig::SHA512);
+        $signedMetadata = Metadata::signMetadata($metadata, $key, $cert, XMLSecurityKey::RSA_SHA256, XMLSecurityDSig::SHA512);
 
         $this->assertContains('<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>', $signedMetadata);
         $this->assertContains('<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512"/>', $signedMetadata);
     }
 
     /**
-    * Tests the addX509KeyDescriptors method of the OneLogin_Saml2_Metadata
-    *
-    * @covers OneLogin_Saml2_Metadata::addX509KeyDescriptors
-    */
+     * Tests the addX509KeyDescriptors method of the Metadata
+     *
+     * @covers OneLogin\Saml2\Metadata::addX509KeyDescriptors
+     */
     public function testAddX509KeyDescriptors()
     {
         $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
-        $settings = new OneLogin_Saml2_Settings($settingsInfo);
+        $settings = new Settings($settingsInfo);
         $spData = $settings->getSPData();
 
-        $metadata = OneLogin_Saml2_Metadata::builder($spData);
+        $metadata = Metadata::builder($spData);
 
         $this->assertNotContains('<md:KeyDescriptor use="signing"', $metadata);
         $this->assertNotContains('<md:KeyDescriptor use="encryption"', $metadata);
@@ -232,23 +243,23 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
         $certPath = $settings->getCertPath();
         $cert = file_get_contents($certPath.'sp.crt');
 
-        $metadataWithDescriptors = OneLogin_Saml2_Metadata::addX509KeyDescriptors($metadata, $cert);
+        $metadataWithDescriptors = Metadata::addX509KeyDescriptors($metadata, $cert);
 
         $this->assertContains('<md:KeyDescriptor use="signing"', $metadataWithDescriptors);
         $this->assertContains('<md:KeyDescriptor use="encryption"', $metadataWithDescriptors);
 
-        $metadataWithDescriptors = OneLogin_Saml2_Metadata::addX509KeyDescriptors($metadata, $cert, false);
+        $metadataWithDescriptors = Metadata::addX509KeyDescriptors($metadata, $cert, false);
 
         $this->assertContains('<md:KeyDescriptor use="signing"', $metadataWithDescriptors);
         $this->assertNotContains('<md:KeyDescriptor use="encryption"', $metadataWithDescriptors);
 
-        $metadataWithDescriptors = OneLogin_Saml2_Metadata::addX509KeyDescriptors($metadata, $cert, 'foobar');
+        $metadataWithDescriptors = Metadata::addX509KeyDescriptors($metadata, $cert, 'foobar');
 
         $this->assertContains('<md:KeyDescriptor use="signing"', $metadataWithDescriptors);
         $this->assertNotContains('<md:KeyDescriptor use="encryption"', $metadataWithDescriptors);
 
         try {
-            $signedMetadata2 = OneLogin_Saml2_Metadata::addX509KeyDescriptors('', $cert);
+            $signedMetadata2 = Metadata::addX509KeyDescriptors('', $cert);
             $this->fail('Exception was not raised');
         } catch (Exception $e) {
             $this->assertContains('Error parsing metadata', $e->getMessage());
@@ -257,7 +268,7 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
         libxml_use_internal_errors(true);
         $unparsedMetadata = file_get_contents(TEST_ROOT . '/data/metadata/unparsed_metadata.xml');
         try {
-            $metadataWithDescriptors = OneLogin_Saml2_Metadata::addX509KeyDescriptors($unparsedMetadata, $cert);
+            $metadataWithDescriptors = Metadata::addX509KeyDescriptors($unparsedMetadata, $cert);
             $this->fail('Exception was not raised');
         } catch (Exception $e) {
             $this->assertContains('Error parsing metadata', $e->getMessage());
@@ -265,20 +276,20 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-    * Tests the addX509KeyDescriptors method of the OneLogin_Saml2_Metadata
-    * Case: Execute 2 addX509KeyDescriptors calls
-    *
-    * @covers OneLogin_Saml2_Metadata::addX509KeyDescriptors
-    */
+     * Tests the addX509KeyDescriptors method of the Metadata
+     * Case: Execute 2 addX509KeyDescriptors calls
+     *
+     * @covers OneLogin\Saml2\Metadata::addX509KeyDescriptors
+     */
     public function testAddX509KeyDescriptors2Times()
     {
         $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
-        $settings = new OneLogin_Saml2_Settings($settingsInfo);
+        $settings = new Settings($settingsInfo);
         $spData = $settings->getSPData();
 
-        $metadata = OneLogin_Saml2_Metadata::builder($spData);
+        $metadata = Metadata::builder($spData);
 
         $this->assertNotContains('<md:KeyDescriptor use="signing"', $metadata);
         $this->assertNotContains('<md:KeyDescriptor use="encryption"', $metadata);
@@ -286,18 +297,18 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
         $certPath = $settings->getCertPath();
         $cert = file_get_contents($certPath.'sp.crt');
 
-        $metadata = OneLogin_Saml2_Metadata::addX509KeyDescriptors($metadata, $cert, false);
+        $metadata = Metadata::addX509KeyDescriptors($metadata, $cert, false);
 
         $this->assertEquals(1, substr_count($metadata, "<md:KeyDescriptor"));
 
-        $metadata = OneLogin_Saml2_Metadata::addX509KeyDescriptors($metadata, $cert, false);
+        $metadata = Metadata::addX509KeyDescriptors($metadata, $cert, false);
 
         $this->assertEquals(2, substr_count($metadata, "<md:KeyDescriptor"));
 
 
-        $metadata2 = OneLogin_Saml2_Metadata::builder($spData);
+        $metadata2 = Metadata::builder($spData);
 
-        $metadata2 = OneLogin_Saml2_Metadata::addX509KeyDescriptors($metadata2, $cert);
+        $metadata2 = Metadata::addX509KeyDescriptors($metadata2, $cert);
 
         $this->assertEquals(2, substr_count($metadata2, "<md:KeyDescriptor"));
 
@@ -305,7 +316,7 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(1, substr_count($metadata2, '<md:KeyDescriptor use="encryption"'));
 
-        $metadata2 = OneLogin_Saml2_Metadata::addX509KeyDescriptors($metadata2, $cert);
+        $metadata2 = Metadata::addX509KeyDescriptors($metadata2, $cert);
 
         $this->assertEquals(4, substr_count($metadata2, "<md:KeyDescriptor"));
 
