@@ -173,11 +173,13 @@ class IdPMetadataParser
                 if (!empty($keyDescriptorCertSigningNodes) || !empty($keyDescriptorCertEncryptionNodes)) {
                     $metadataInfo['idp']['x509certMulti'] = array();
                     if (!empty($keyDescriptorCertSigningNodes)) {
+                        $idpInfo['x509certMulti']['signing'] = array();
                         foreach ($keyDescriptorCertSigningNodes as $keyDescriptorCertSigningNode) {
                             $metadataInfo['idp']['x509certMulti']['signing'][] = Utils::formatCert($keyDescriptorCertSigningNode->nodeValue, false);
                         }
                     }
                     if (!empty($keyDescriptorCertEncryptionNodes)) {
+                        $idpInfo['x509certMulti']['encryption'] = array();
                         foreach ($keyDescriptorCertEncryptionNodes as $keyDescriptorCertEncryptionNode) {
                             $metadataInfo['idp']['x509certMulti']['encryption'][] = Utils::formatCert($keyDescriptorCertEncryptionNode->nodeValue, false);
                         }

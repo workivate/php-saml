@@ -267,37 +267,6 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-
-    /**
-    * Tests the getNameIdNameQualifier method of the OneLogin_Saml2_Response
-    *
-    * @covers OneLogin_Saml2_Response::getNameIdNameQualifier
-    */
-    public function testGetNameIdNameQualifier()
-    {
-        $xml = file_get_contents(TEST_ROOT . '/data/responses/response1.xml.base64');
-        $response = new OneLogin_Saml2_Response($this->_settings, $xml);
-        $this->assertEquals('https://test.example.com/saml/metadata', $response->getNameIdNameQualifier());
-
-        $xml2 = file_get_contents(TEST_ROOT . '/data/responses/response_encrypted_nameid.xml.base64');
-        $response2 = new OneLogin_Saml2_Response($this->_settings, $xml2);
-        $this->assertEquals(null, $response2->getNameIdNameQualifier());
-
-        $xml3 = file_get_contents(TEST_ROOT . '/data/responses/valid_encrypted_assertion.xml.base64');
-        $response3 = new OneLogin_Saml2_Response($this->_settings, $xml3);
-        $this->assertEquals(null, $response3->getNameIdNameQualifier());
-
-        $xml4 = file_get_contents(TEST_ROOT . '/data/responses/invalids/no_nameid.xml.base64');
-        $response4 = new OneLogin_Saml2_Response($this->_settings, $xml4);
-
-        try {
-            $nameId4 = $response4->getNameIdNameQualifier();
-            $this->fail('OneLogin_Saml2_ValidationError was not raised');
-        } catch (OneLogin_Saml2_ValidationError $e) {
-            $this->assertContains('NameID not found in the assertion of the Response', $e->getMessage());
-        }
-    }
-
     /**
     * Tests the getNameIdSPNameQualifier method of the Response
     *

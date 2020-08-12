@@ -59,14 +59,6 @@ class Auth
      */
     private $_nameidFormat;
 
-
-    /**
-     * NameID NameQualifier
-     *
-     * @var string
-     */
-    private $_nameidNameQualifier;
-
     /**
      * NameID NameQualifier
      *

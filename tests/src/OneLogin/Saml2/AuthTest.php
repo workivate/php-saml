@@ -59,11 +59,11 @@ class AuthTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetLastRequestID()
     {
-        $targetSSOURL = $this->_auth->login(null, array(), false, false, true, false, false);
+        $targetSSOURL = $this->_auth->login(null, array(), false, false, true, false);
         $id1 = $this->_auth->getLastRequestID();
         $this->assertNotNull($id1);
 
-        $targetSLOURL = $this->_auth->logout(null, array(), null, null, true, null, null);
+        $targetSLOURL = $this->_auth->logout(null, array(), null, null, true, null);
         $id2 = $this->_auth->getLastRequestID();
         $this->assertNotNull($id2);
 

@@ -1491,7 +1491,7 @@ Once the SP is configured, the metadata of the SP is published at the
 
 ### How it works ###
 
-In demo1, we saw how all the SAML Request and Responses were handler at an
+At demo1, we saw how all the SAML Request and Responses were handler at an
 unique file, the `index.php` file. This demo1 uses high-level programming.
 
 At demo2, we have several views: `index.php`, `sso.php`, `slo.php`, `consume.php`

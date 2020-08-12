@@ -1,4 +1,5 @@
 <?php
+ 
 /**
  *  SP Single Logout Service Endpoint
  */
