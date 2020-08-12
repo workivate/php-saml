@@ -1536,4 +1536,3 @@ demo1, only changes the targets.
     to the IdP (to the SLS endpoint of the IdP).The IdP receives the Logout
     Response, process it and close the session at of the IdP. Notice that the
     SLO Workflow starts and ends at the IdP.
-
