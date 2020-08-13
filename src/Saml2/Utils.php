@@ -360,7 +360,72 @@ class Utils
         }
     }
 
-     /**
+    /**
+     * Executes a redirection to the provided url (or return the target url).
+     *
+     * @param string $url        The target url
+     * @param array  $parameters Extra parameters to be passed as part of the url
+     * @param bool   $stay       True if we want to stay (returns the url string) False to redirect
+     *
+     * @return array|null [string $url, array $postdata]
+     *
+     * @throws Error
+     */
+    public static function post($url, array $parameters = array(), $stay = false)
+    {
+        assert(is_string($url));
+
+        if (substr($url, 0, 1) === '/') {
+            $url = self::getSelfURLhost() . $url;
+        }
+
+        /**
+         * Verify that the URL matches the regex for the protocol.
+         * By default this will check for http and https
+         */
+        $wrongProtocol = !preg_match(self::$_protocolRegex, $url);
+        $url = filter_var($url, FILTER_VALIDATE_URL);
+        if ($wrongProtocol || empty($url)) {
+            throw new Error(
+                'Redirect to invalid URL: ' . $url,
+                Error::REDIRECT_INVALID_URL
+            );
+        }
+
+        $post = array();
+        foreach ($parameters as $name => $value) {
+            $name = urlencode($name);
+            if (is_array($value)) {
+                foreach ($value as $v) {
+                    $post["{$name}[]"] = urlencode($v);
+                }
+            } else {
+                $post[$name] = urlencode($value);
+            }
+        }
+
+        if ($stay) {
+            return array($url, $post);
+        }
+
+        $fields = array();
+        foreach ($post as $name => $value) {
+            $fields[] = sprintf('<input type="hidden" name="%s" value=%s"/>', $name, $value);
+        }
+
+        printf('
+            <!DOCTYPE html>
+            <html><head><meta charset="utf-8"/>Redirect<title></title></head>
+            <body><form id="form" action="%s" method="post" enctype="application/x-www-form-urlencoded">%s
+            <noscript><button type="submit">Click to continue</button></noscript></form>
+            <script>document.getElementById("form").submit();</script></body></html>', 
+            $url, join('', $fields)
+        );
+
+        exit();
+    }
+
+    /**
      * @param $protocolRegex string
      */
     public static function setProtocolRegex($protocolRegex)
@@ -406,10 +471,10 @@ class Utils
                 self::setBaseURLPath($baseurlpath);
             }
         } else {
-                self::$_host = null;
-                self::$_protocol = null;
-                self::$_port = null;
-                self::$_baseurlpath = null;
+            self::$_host = null;
+            self::$_protocol = null;
+            self::$_port = null;
+            self::$_baseurlpath = null;
         }
     }
 
