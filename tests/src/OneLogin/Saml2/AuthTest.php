@@ -948,7 +948,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
         $this->assertArrayHasKey('SAMLRequest', $result[1]);
         $this->assertArrayHasKey('RelayState', $result[1]);
 
-        $request = base64_decode(urldecode($result[1]['SAMLRequest']));
+        $request = base64_decode($result[1]['SAMLRequest']);
         $this->assertStringContainsString('<samlp:AuthnRequest', $request);
         $this->assertStringContainsString('</samlp:AuthnRequest>', $request);
     }
@@ -1082,7 +1082,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
         $this->assertArrayHasKey('SAMLRequest', $result[1]);
         $this->assertArrayHasKey('RelayState', $result[1]);
 
-        $request = base64_decode(urldecode($result[1]['SAMLRequest']));
+        $request = base64_decode($result[1]['SAMLRequest']);
         $this->assertStringContainsString('<samlp:AuthnRequest', $request);
         $this->assertStringContainsString('<ds:Signature', $request);
         $this->assertStringContainsString('<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>', $request);
