@@ -928,7 +928,6 @@ class AuthTest extends \PHPUnit\Framework\TestCase
             $this->assertArrayHasKey('SAMLRequest', $parsedQuery);
             $this->assertArrayHasKey('RelayState', $parsedQuery);
             $this->assertEquals($parsedQuery['RelayState'], Utils::getSelfRoutedURLNoQuery());
-            echo gzinflate(base64_decode($parsedQuery['SAMLRequest']));
         }
     }
 
