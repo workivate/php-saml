@@ -12,6 +12,7 @@ use OneLogin\Saml2\ValidationError;
 use RobRichards\XMLSecLibs\XMLSecurityKey;
 
 use Exception;
+use OneLogin\Saml2\Constants;
 
 /**
  * Unit tests for Auth class
@@ -927,7 +928,30 @@ class AuthTest extends \PHPUnit\Framework\TestCase
             $this->assertArrayHasKey('SAMLRequest', $parsedQuery);
             $this->assertArrayHasKey('RelayState', $parsedQuery);
             $this->assertEquals($parsedQuery['RelayState'], Utils::getSelfRoutedURLNoQuery());
+            echo gzinflate(base64_decode($parsedQuery['SAMLRequest']));
         }
+    }
+
+    public function testLoginPOSTBindings()
+    {
+        $settingsDir = TEST_ROOT .'/settings/';
+        include $settingsDir.'settings1.php';
+
+        $settingsInfo['sp']['singleSignOnService']['binding'] = Constants::BINDING_HTTP_POST;
+        $auth = new Auth($settingsInfo);
+        $result = $auth->login(null, array(), false, false, true);
+        
+        $this->assertIsArray($result);
+        $this->assertEquals(2, count($result));
+        $this->assertArrayHasKey(0, $result);
+        $this->assertArrayHasKey(1, $result);
+        $this->assertStringStartsWith('http', $result[0]);
+        $this->assertArrayHasKey('SAMLRequest', $result[1]);
+        $this->assertArrayHasKey('RelayState', $result[1]);
+
+        $request = base64_decode(urldecode($result[1]['SAMLRequest']));
+        $this->assertStringContainsString('<samlp:AuthnRequest', $request);
+        $this->assertStringContainsString('</samlp:AuthnRequest>', $request);
     }
 
     /**
@@ -1040,6 +1064,32 @@ class AuthTest extends \PHPUnit\Framework\TestCase
             $this->assertEquals(XMLSecurityKey::RSA_SHA256, $parsedQuery['SigAlg']);
         }
     }
+
+    public function testLoginSignedPOSTBindings()
+    {
+        $settingsDir = TEST_ROOT .'/settings/';
+        include $settingsDir.'settings1.php';
+
+        $settingsInfo['sp']['singleSignOnService']['binding'] = Constants::BINDING_HTTP_POST;
+        $settingsInfo['security']['authnRequestsSigned'] = true;
+        $auth = new Auth($settingsInfo);
+        $result = $auth->login(null, array(), false, false, true);
+
+        $this->assertIsArray($result);
+        $this->assertEquals(2, count($result));
+        $this->assertArrayHasKey(0, $result);
+        $this->assertArrayHasKey(1, $result);
+        $this->assertStringStartsWith('http', $result[0]);
+        $this->assertArrayHasKey('SAMLRequest', $result[1]);
+        $this->assertArrayHasKey('RelayState', $result[1]);
+
+        $request = base64_decode(urldecode($result[1]['SAMLRequest']));
+        $this->assertStringContainsString('<samlp:AuthnRequest', $request);
+        $this->assertStringContainsString('<ds:Signature', $request);
+        $this->assertStringContainsString('<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>', $request);
+        $this->assertStringContainsString('</samlp:AuthnRequest>', $request);
+    }
+
 
     /**
      * Tests the login method of the Auth class
