@@ -410,7 +410,11 @@ class Utils
 
         $fields = array();
         foreach ($post as $name => $value) {
-            $fields[] = sprintf('<input type="hidden" name="%s" value=%s"/>', $name, $value);
+            $fields[] = sprintf(
+                '<input type="hidden" name="%s" value=%s"/>',
+                htmlspecialchars($name, ENT_QUOTES, 'utf-8'),
+                htmlspecialchars($value, ENT_QUOTES, 'utf-8')
+            );
         }
 
         printf('
@@ -419,7 +423,7 @@ class Utils
             <body><form id="form" action="%s" method="post" enctype="application/x-www-form-urlencoded">%s
             <noscript><button type="submit">Click to continue</button></noscript></form>
             <script>document.getElementById("form").submit();</script></body></html>', 
-            $url, join('', $fields)
+            htmlspecialchars($url, ENT_QUOTES, 'utf-8'), join('', $fields)
         );
 
         exit();
