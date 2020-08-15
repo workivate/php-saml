@@ -660,8 +660,8 @@ class Auth
      */
     public function getSSOBinding()
     {
-        $spData = $this->_settings->getSPData();
-        return $spData['singleSignOnService']['binding'];
+        $idpData = $this->_settings->getIdPData();
+        return $idpData['singleSignOnService']['binding'];
     }
 
     /**

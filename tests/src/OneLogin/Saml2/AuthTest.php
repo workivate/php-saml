@@ -936,7 +936,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
         $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
-        $settingsInfo['sp']['singleSignOnService']['binding'] = Constants::BINDING_HTTP_POST;
+        $settingsInfo['idp']['singleSignOnService']['binding'] = Constants::BINDING_HTTP_POST;
         $auth = new Auth($settingsInfo);
         $result = $auth->login(null, array(), false, false, true);
         
@@ -1069,7 +1069,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
         $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
-        $settingsInfo['sp']['singleSignOnService']['binding'] = Constants::BINDING_HTTP_POST;
+        $settingsInfo['idp']['singleSignOnService']['binding'] = Constants::BINDING_HTTP_POST;
         $settingsInfo['security']['authnRequestsSigned'] = true;
         $auth = new Auth($settingsInfo);
         $result = $auth->login(null, array(), false, false, true);

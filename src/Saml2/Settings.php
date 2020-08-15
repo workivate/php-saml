@@ -341,8 +341,8 @@ class Settings
             $this->_sp['singleLogoutService']['binding'] = Constants::BINDING_HTTP_REDIRECT;
         }
 
-        if (!isset($this->_sp['singleSignOnService']['binding'])) {
-            $this->_sp['singleSignOnService']['binding'] = Constants::BINDING_HTTP_REDIRECT;
+        if (!isset($this->_idp['singleSignOnService']['binding'])) {
+            $this->_idp['singleSignOnService']['binding'] = Constants::BINDING_HTTP_REDIRECT;
         }
 
         if (!isset($this->_compress['requests'])) {
