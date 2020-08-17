@@ -936,7 +936,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
         $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
-        $settingsInfo['sp']['singleSignOnService']['binding'] = Constants::BINDING_HTTP_POST;
+        $settingsInfo['idp']['singleSignOnService']['binding'] = Constants::BINDING_HTTP_POST;
         $auth = new Auth($settingsInfo);
         $result = $auth->login(null, array(), false, false, true);
         
@@ -948,7 +948,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
         $this->assertArrayHasKey('SAMLRequest', $result[1]);
         $this->assertArrayHasKey('RelayState', $result[1]);
 
-        $request = base64_decode(urldecode($result[1]['SAMLRequest']));
+        $request = base64_decode($result[1]['SAMLRequest']);
         $this->assertStringContainsString('<samlp:AuthnRequest', $request);
         $this->assertStringContainsString('</samlp:AuthnRequest>', $request);
     }
@@ -1069,7 +1069,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
         $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
-        $settingsInfo['sp']['singleSignOnService']['binding'] = Constants::BINDING_HTTP_POST;
+        $settingsInfo['idp']['singleSignOnService']['binding'] = Constants::BINDING_HTTP_POST;
         $settingsInfo['security']['authnRequestsSigned'] = true;
         $auth = new Auth($settingsInfo);
         $result = $auth->login(null, array(), false, false, true);
@@ -1082,7 +1082,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
         $this->assertArrayHasKey('SAMLRequest', $result[1]);
         $this->assertArrayHasKey('RelayState', $result[1]);
 
-        $request = base64_decode(urldecode($result[1]['SAMLRequest']));
+        $request = base64_decode($result[1]['SAMLRequest']);
         $this->assertStringContainsString('<samlp:AuthnRequest', $request);
         $this->assertStringContainsString('<ds:Signature', $request);
         $this->assertStringContainsString('<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>', $request);

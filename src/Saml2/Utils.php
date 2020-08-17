@@ -397,10 +397,10 @@ class Utils
             $name = urlencode($name);
             if (is_array($value)) {
                 foreach ($value as $v) {
-                    $post["{$name}[]"] = urlencode($v);
+                    $post["{$name}[]"] = $v;
                 }
             } else {
-                $post[$name] = urlencode($value);
+                $post[$name] = $value;
             }
         }
 
@@ -411,7 +411,7 @@ class Utils
         $fields = array();
         foreach ($post as $name => $value) {
             $fields[] = sprintf(
-                '<input type="hidden" name="%s" value=%s"/>',
+                '<input type="hidden" name="%s" value="%s"/>',
                 htmlspecialchars($name, ENT_QUOTES, 'utf-8'),
                 htmlspecialchars($value, ENT_QUOTES, 'utf-8')
             );
@@ -419,7 +419,7 @@ class Utils
 
         printf('
             <!DOCTYPE html>
-            <html><head><meta charset="utf-8"/>Redirect<title></title></head>
+            <html><head><meta charset="utf-8"/>Redirecting...<title></title></head>
             <body><form id="form" action="%s" method="post" enctype="application/x-www-form-urlencoded">%s
             <noscript><button type="submit">Click to continue</button></noscript></form>
             <script>document.getElementById("form").submit();</script></body></html>', 
