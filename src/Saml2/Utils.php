@@ -419,7 +419,7 @@ class Utils
 
         printf('
             <!DOCTYPE html>
-            <html><head><meta charset="utf-8"/>Redirecting...<title></title></head>
+            <html><head><meta charset="utf-8"/><title>Redirecting...</title></head>
             <body><form id="form" action="%s" method="post" enctype="application/x-www-form-urlencoded">%s
             <noscript><button type="submit">Click to continue</button></noscript></form>
             <script>document.getElementById("form").submit();</script></body></html>', 
