@@ -83,9 +83,12 @@ class Utils
         assert(is_string($xml));
 
         $oldEntityLoader = libxml_disable_entity_loader(true);
+        $oldErrors = libxml_use_internal_errors(true);
 
-        $res = $dom->loadXML($xml);
+        $res = $dom->loadXML($xml, LIBXML_NOWARNING | LIBXML_NOERROR);
 
+        libxml_clear_errors();
+        libxml_use_internal_errors($oldErrors);
         libxml_disable_entity_loader($oldEntityLoader);
 
         foreach ($dom->childNodes as $child) {
