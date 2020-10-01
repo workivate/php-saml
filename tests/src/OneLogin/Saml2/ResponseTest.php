@@ -1526,7 +1526,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $response = new Response($settings, $xml);
 
         $this->assertFalse($response->isValid());
-        $this->assertEquals('openssl_x509_read(): supplied parameter cannot be coerced into an X509 certificate!', $response->getError());
+        $this->assertStringContainsString('openssl_x509_read():', $response->getError());
     }
 
     /**
