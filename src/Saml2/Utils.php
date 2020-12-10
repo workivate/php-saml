@@ -626,7 +626,7 @@ class Utils
 
         // strip the port
         if (false !== strpos($currentHost, ':')) {
-            list($currentHost, $port) = explode(':', $currentHost, 2);
+            list($currentHost) = explode(':', $currentHost, 2);
         }
 
         return $currentHost;
@@ -864,9 +864,7 @@ class Utils
         /* We use gmmktime because the timestamp will always be given
          * in UTC.
          */
-        $ts = gmmktime($hour, $minute, $second, $month, $day, $year);
-
-        return $ts;
+        return gmmktime($hour, $minute, $second, $month, $day, $year);
     }
 
 
@@ -1108,9 +1106,7 @@ class Utils
      */
     public static function formatFingerPrint($fingerprint)
     {
-        $formatedFingerprint = str_replace(':', '', $fingerprint);
-        $formatedFingerprint = strtolower($formatedFingerprint);
-        return $formatedFingerprint;
+        return strtolower(str_replace(':', '', $fingerprint));
     }
 
     /**
@@ -1456,9 +1452,7 @@ class Utils
         $objXMLSecDSig->insertSignature($rootNode, $insertBefore);
 
         /* Return the DOM tree as a string. */
-        $signedxml = $dom->saveXML();
-
-        return $signedxml;
+        return $dom->saveXML();
     }
 
     /**
@@ -1511,12 +1505,7 @@ class Utils
         }
 
         $objXMLSecDSig->canonicalizeSignedInfo();
-
-        try {
-            $retVal = $objXMLSecDSig->validateReference();
-        } catch (Exception $e) {
-            throw $e;
-        }
+        $objXMLSecDSig->validateReference();
 
         XMLSecEnc::staticLocateKeyInfo($objKey, $objDSig);
 
