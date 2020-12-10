@@ -1284,8 +1284,8 @@ class Utils
             if (strlen($key) != $keySize) {
                 $encryptedKey = $encKey->getCipherValue();
                 $pkey = openssl_pkey_get_details($symmetricKeyInfo->key);
-                $pkey = sha1(serialize($pkey), true);
-                $key = sha1($encryptedKey . $pkey, true);
+                $pkey = hash('sha256', serialize($pkey), true);
+                $key = hash('sha256', $encryptedKey . $pkey, true);
 
                 /* Make sure that the key has the correct length. */
                 if (strlen($key) > $keySize) {
