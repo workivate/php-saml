@@ -188,8 +188,7 @@ AUTHNREQUEST;
             $subject = gzdeflate($this->_authnRequest);
         }
 
-        $base64Request = base64_encode($subject);
-        return $base64Request;
+        return base64_encode($subject);
     }
 
     /**

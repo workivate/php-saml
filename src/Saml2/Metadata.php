@@ -39,11 +39,10 @@ class Metadata
      * @param int|null      $cacheDuration Duration of the cache in seconds
      * @param array         $contacts      Contacts info
      * @param array         $organization  Organization ingo
-     * @param array         $attributes
      *
      * @return string SAML Metadata XML
      */
-    public static function builder($sp, $authnsign = false, $wsign = false, $validUntil = null, $cacheDuration = null, $contacts = array(), $organization = array(), $attributes = array())
+    public static function builder($sp, $authnsign = false, $wsign = false, $validUntil = null, $cacheDuration = null, $contacts = array(), $organization = array())
     {
 
         if (!isset($validUntil)) {
@@ -172,7 +171,7 @@ METADATA_TEMPLATE;
 
         $spEntityId = htmlspecialchars($sp['entityId'], ENT_QUOTES);
         $acsUrl = htmlspecialchars($sp['assertionConsumerService']['url'], ENT_QUOTES);
-        $metadata = <<<METADATA_TEMPLATE
+        return <<<METADATA_TEMPLATE
 <?xml version="1.0"?>
 <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
                      validUntil="{$validUntilTime}"
@@ -187,7 +186,6 @@ METADATA_TEMPLATE;
     </md:SPSSODescriptor>{$strOrganization}{$strContacts}
 </md:EntityDescriptor>
 METADATA_TEMPLATE;
-        return $metadata;
     }
 
     /**

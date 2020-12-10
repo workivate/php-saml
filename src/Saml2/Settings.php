@@ -572,7 +572,7 @@ class Settings
                 ) {
                     $errors[] = 'idp_cert_or_fingerprint_not_found_and_required';
                 }
-                if ((isset($security['nameIdEncrypted']) && $security['nameIdEncrypted'] == true)
+                if ((isset($security['nameIdEncrypted']) && $security['nameIdEncrypted'])
                     && !($existsX509 || $existsMultiX509Enc)
                 ) {
                     $errors[] = 'idp_cert_not_found_and_required';
@@ -637,11 +637,11 @@ class Settings
                 }
             }
 
-            if (((isset($security['authnRequestsSigned']) && $security['authnRequestsSigned'] == true)
-                || (isset($security['logoutRequestSigned']) && $security['logoutRequestSigned'] == true)
-                || (isset($security['logoutResponseSigned']) && $security['logoutResponseSigned'] == true)
-                || (isset($security['wantAssertionsEncrypted']) && $security['wantAssertionsEncrypted'] == true)
-                || (isset($security['wantNameIdEncrypted']) && $security['wantNameIdEncrypted'] == true))
+            if ((!empty($security['authnRequestsSigned'])
+                || !empty($security['logoutRequestSigned'])
+                || !empty($security['logoutResponseSigned'])
+                || !empty($security['wantAssertionsEncrypted'])
+                || !empty($security['wantNameIdEncrypted']))
                 && !$this->checkSPCerts()
             ) {
                 $errors[] = 'sp_certs_not_found_and_required';
@@ -867,7 +867,7 @@ class Settings
         }
 
         //Sign Metadata
-        if (isset($this->_security['signMetadata']) && $this->_security['signMetadata'] != false) {
+        if (!empty($this->_security['signMetadata'])) {
             if ($this->_security['signMetadata'] === true) {
                 $keyMetadata = $this->getSPkey();
                 $certMetadata = $cert;

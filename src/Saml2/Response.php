@@ -26,7 +26,7 @@ use Exception;
 /**
  * SAML 2 Authentication Response
  */
-class Response
+class Response extends AbstractResponse
 {
     /**
      * Settings
@@ -270,26 +270,7 @@ class Response
                 // Check destination
                 if ($this->document->documentElement->hasAttribute('Destination')) {
                     $destination = trim($this->document->documentElement->getAttribute('Destination'));
-                    if (empty($destination)) {
-                        if (!$security['relaxDestinationValidation']) {
-                            throw new ValidationError(
-                                "The response has an empty Destination value",
-                                ValidationError::EMPTY_DESTINATION
-                            );
-                        }
-                    } else {
-                        $urlComparisonLength = $security['destinationStrictlyMatches'] ? strlen($destination) : strlen($currentURL);
-                        if (strncmp($destination, $currentURL, $urlComparisonLength) !== 0) {
-                            $currentURLNoRouted = Utils::getSelfURLNoQuery();
-                            $urlComparisonLength = $security['destinationStrictlyMatches'] ? strlen($destination) : strlen($currentURLNoRouted);
-                            if (strncmp($destination, $currentURLNoRouted, $urlComparisonLength) !== 0) {
-                                throw new ValidationError(
-                                    "The response was received at $currentURL instead of $destination",
-                                    ValidationError::WRONG_DESTINATION
-                                );
-                            }
-                        }
-                    }
+                    $this->checkDestination($destination, $currentURL, $security, 'response');
                 }
 
                 // Check audience
@@ -522,11 +503,7 @@ class Response
     public function checkOneCondition()
     {
         $entries = $this->_queryAssertion("/saml:Conditions");
-        if ($entries->length == 1) {
-            return true;
-        } else {
-            return false;
-        }
+        return $entries->length === 1;
     }
 
     /**
@@ -537,11 +514,7 @@ class Response
     public function checkOneAuthnStatement()
     {
         $entries = $this->_queryAssertion("/saml:AuthnStatement");
-        if ($entries->length == 1) {
-            return true;
-        } else {
-            return false;
-        }
+        return $entries->length === 1;
     }
 
     /**

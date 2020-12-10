@@ -626,7 +626,7 @@ class Utils
 
         // strip the port
         if (false !== strpos($currentHost, ':')) {
-            list($currentHost, $port) = explode(':', $currentHost, 2);
+            list($currentHost) = explode(':', $currentHost, 2);
         }
 
         return $currentHost;
@@ -809,7 +809,7 @@ class Utils
      */
     public static function generateUniqueID()
     {
-        return 'ONELOGIN_' . sha1(uniqid((string)mt_rand(), true));
+        return 'ONELOGIN_' . bin2hex(random_bytes(20));
     }
 
     /**
@@ -823,8 +823,7 @@ class Utils
     public static function parseTime2SAML($time)
     {
         $date = new \DateTime("@$time", new \DateTimeZone('UTC'));
-        $timestamp = $date->format("Y-m-d\TH:i:s\Z");
-        return $timestamp;
+        return $date->format("Y-m-d\TH:i:s\Z");
     }
 
     /**
@@ -865,9 +864,7 @@ class Utils
         /* We use gmmktime because the timestamp will always be given
          * in UTC.
          */
-        $ts = gmmktime($hour, $minute, $second, $month, $day, $year);
-
-        return $ts;
+        return gmmktime($hour, $minute, $second, $month, $day, $year);
     }
 
 
@@ -1109,9 +1106,7 @@ class Utils
      */
     public static function formatFingerPrint($fingerprint)
     {
-        $formatedFingerprint = str_replace(':', '', $fingerprint);
-        $formatedFingerprint = strtolower($formatedFingerprint);
-        return $formatedFingerprint;
+        return strtolower(str_replace(':', '', $fingerprint));
     }
 
     /**
@@ -1289,8 +1284,8 @@ class Utils
             if (strlen($key) != $keySize) {
                 $encryptedKey = $encKey->getCipherValue();
                 $pkey = openssl_pkey_get_details($symmetricKeyInfo->key);
-                $pkey = sha1(serialize($pkey), true);
-                $key = sha1($encryptedKey . $pkey, true);
+                $pkey = hash('sha256', serialize($pkey), true);
+                $key = hash('sha256', $encryptedKey . $pkey, true);
 
                 /* Make sure that the key has the correct length. */
                 if (strlen($key) > $keySize) {
@@ -1457,9 +1452,7 @@ class Utils
         $objXMLSecDSig->insertSignature($rootNode, $insertBefore);
 
         /* Return the DOM tree as a string. */
-        $signedxml = $dom->saveXML();
-
-        return $signedxml;
+        return $dom->saveXML();
     }
 
     /**
@@ -1512,12 +1505,7 @@ class Utils
         }
 
         $objXMLSecDSig->canonicalizeSignedInfo();
-
-        try {
-            $retVal = $objXMLSecDSig->validateReference();
-        } catch (Exception $e) {
-            throw $e;
-        }
+        $objXMLSecDSig->validateReference();
 
         XMLSecEnc::staticLocateKeyInfo($objKey, $objDSig);
 
