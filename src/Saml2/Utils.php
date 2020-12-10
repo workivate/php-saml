@@ -809,7 +809,7 @@ class Utils
      */
     public static function generateUniqueID()
     {
-        return 'ONELOGIN_' . sha1(uniqid((string)mt_rand(), true));
+        return 'ONELOGIN_' . bin2hex(random_bytes(20));
     }
 
     /**
@@ -823,8 +823,7 @@ class Utils
     public static function parseTime2SAML($time)
     {
         $date = new \DateTime("@$time", new \DateTimeZone('UTC'));
-        $timestamp = $date->format("Y-m-d\TH:i:s\Z");
-        return $timestamp;
+        return $date->format("Y-m-d\TH:i:s\Z");
     }
 
     /**
