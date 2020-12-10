@@ -185,8 +185,8 @@ class IdPMetadataParser
                     }
 
                     $idpCertdata = $metadataInfo['idp']['x509certMulti'];
-                    if ((count($idpCertdata) == 1 and
-                         ((isset($idpCertdata['signing']) and count($idpCertdata['signing']) == 1) or (isset($idpCertdata['encryption']) and count($idpCertdata['encryption']) == 1))) or
+                    if ((count($idpCertdata) == 1 &&
+                         ((isset($idpCertdata['signing']) && count($idpCertdata['signing']) == 1) || (isset($idpCertdata['encryption']) && count($idpCertdata['encryption']) == 1))) ||
                          ((isset($idpCertdata['signing']) && count($idpCertdata['signing']) == 1) && isset($idpCertdata['encryption']) && count($idpCertdata['encryption']) == 1 && strcmp($idpCertdata['signing'][0], $idpCertdata['encryption'][0]) == 0)) {
                         if (isset($metadataInfo['idp']['x509certMulti']['signing'][0])) {
                             $metadataInfo['idp']['x509cert'] = $metadataInfo['idp']['x509certMulti']['signing'][0];
