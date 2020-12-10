@@ -23,7 +23,7 @@ use Exception;
 /**
  * SAML 2 Logout Request
  */
-class LogoutRequest
+class LogoutRequest extends AbstractResponse
 {
     /**
      * Contains the ID of the Logout Request
@@ -145,7 +145,7 @@ LOGOUTREQUEST;
             $decoded = base64_decode($request);
             // We try to inflate
             $inflated = @gzinflate($decoded);
-            if ($inflated != false) {
+            if ($inflated !== false) {
                 $logoutRequest = $inflated;
             } else {
                 $logoutRequest = $decoded;
@@ -203,8 +203,7 @@ LOGOUTREQUEST;
             );
         }
 
-        $id = $dom->documentElement->getAttribute('ID');
-        return $id;
+        return $dom->documentElement->getAttribute('ID');
     }
 
     /**
@@ -393,29 +392,10 @@ LOGOUTREQUEST;
                 // Check destination
                 if ($dom->documentElement->hasAttribute('Destination')) {
                     $destination = $dom->documentElement->getAttribute('Destination');
-                    if (empty($destination)) {
-                        if (!$security['relaxDestinationValidation']) {
-                            throw new ValidationError(
-                                "The LogoutRequest has an empty Destination value",
-                                ValidationError::EMPTY_DESTINATION
-                            );
-                        }
-                    } else {
-                        $urlComparisonLength = $security['destinationStrictlyMatches'] ? strlen($destination) : strlen($currentURL);
-                        if (strncmp($destination, $currentURL, $urlComparisonLength) !== 0) {
-                            $currentURLNoRouted = Utils::getSelfURLNoQuery();
-                            $urlComparisonLength = $security['destinationStrictlyMatches'] ? strlen($destination) : strlen($currentURLNoRouted);
-                            if (strncmp($destination, $currentURLNoRouted, $urlComparisonLength) !== 0) {
-                                throw new ValidationError(
-                                    "The LogoutRequest was received at $currentURL instead of $destination",
-                                    ValidationError::WRONG_DESTINATION
-                                );
-                            }
-                        }
-                    }
+                    $this->checkDestination($destination, $currentURL, $security, 'LogoutRequest');
                 }
 
-                $nameId = static::getNameId($dom, $this->_settings->getSPkey());
+                static::getNameId($dom, $this->_settings->getSPkey());
 
                 // Check issuer
                 $issuer = static::getIssuer($dom);

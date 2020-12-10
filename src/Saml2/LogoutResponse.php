@@ -22,7 +22,7 @@ use Exception;
 /**
  * SAML 2 Logout Response
  */
-class LogoutResponse
+class LogoutResponse extends AbstractResponse
 {
     /**
      * Contains the ID of the Logout Response
@@ -81,7 +81,7 @@ class LogoutResponse
         if ($response) {
             $decoded = base64_decode($response);
             $inflated = @gzinflate($decoded);
-            if ($inflated != false) {
+            if ($inflated !== false) {
                 $this->_logoutResponse = $inflated;
             } else {
                 $this->_logoutResponse = $decoded;
@@ -128,8 +128,7 @@ class LogoutResponse
         if ($entries->length != 1) {
             return null;
         }
-        $status = $entries->item(0)->getAttribute('Value');
-        return $status;
+        return $entries->item(0)->getAttribute('Value');
     }
 
     /**
@@ -186,26 +185,7 @@ class LogoutResponse
 
                 if ($this->document->documentElement->hasAttribute('Destination')) {
                     $destination = $this->document->documentElement->getAttribute('Destination');
-                    if (empty($destination)) {
-                        if (!$security['relaxDestinationValidation']) {
-                            throw new ValidationError(
-                                "The LogoutResponse has an empty Destination value",
-                                ValidationError::EMPTY_DESTINATION
-                            );
-                        }
-                    } else {
-                        $urlComparisonLength = $security['destinationStrictlyMatches'] ? strlen($destination) : strlen($currentURL);
-                        if (strncmp($destination, $currentURL, $urlComparisonLength) !== 0) {
-                            $currentURLNoRouted = Utils::getSelfURLNoQuery();
-                            $urlComparisonLength = $security['destinationStrictlyMatches'] ? strlen($destination) : strlen($currentURLNoRouted);
-                            if (strncmp($destination, $currentURLNoRouted, $urlComparisonLength) !== 0) {
-                                throw new ValidationError(
-                                    "The LogoutResponse was received at $currentURL instead of $destination",
-                                    ValidationError::WRONG_DESTINATION
-                                );
-                            }
-                        }
-                    }
+                    $this->checkDestination($destination, $currentURL, $security, 'LogoutResponse');
                 }
 
                 if ($security['wantMessagesSigned'] && !isset($_GET['Signature'])) {
