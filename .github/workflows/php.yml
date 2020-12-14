@@ -66,8 +66,8 @@ jobs:
         with:
           name: junit.xml
 
-      - name: Fix paths in junit.xml
-        run: sed -i "s@$(pwd)@/github/workspace@g" junit.xml
+      - name: Fix paths
+        run: sed -i "s@$(pwd)@/github/workspace@g" junit.xml clover.xml
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
