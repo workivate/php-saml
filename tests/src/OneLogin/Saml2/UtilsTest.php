@@ -205,8 +205,8 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
         new Settings($settingsInfo);
         $key = $settingsInfo['sp']['privateKey'];
 
-        $this->assertNotContains('-----BEGIN RSA PRIVATE KEY-----', $key);
-        $this->assertNotContains('-----END RSA PRIVATE KEY-----', $key);
+        $this->assertStringNotContainsString('-----BEGIN RSA PRIVATE KEY-----', $key);
+        $this->assertStringNotContainsString('-----END RSA PRIVATE KEY-----', $key);
         $this->assertEquals(816, strlen($key));
 
         $formatedKey1 = Utils::formatPrivateKey($key);
