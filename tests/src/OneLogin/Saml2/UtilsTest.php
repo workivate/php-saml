@@ -154,8 +154,8 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
         new Settings($settingsInfo);
 
         $cert = $settingsInfo['idp']['x509cert'];
-        $this->assertNotContains('-----BEGIN CERTIFICATE-----', $cert);
-        $this->assertNotContains('-----END CERTIFICATE-----', $cert);
+        $this->assertStringNotContainsString('-----BEGIN CERTIFICATE-----', $cert);
+        $this->assertStringNotContainsString('-----END CERTIFICATE-----', $cert);
         $this->assertEquals(860, strlen($cert));
 
         $formatedCert1 = Utils::formatCert($cert);
@@ -173,8 +173,8 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
 
 
         $cert2 = $settingsInfo['sp']['x509cert'];
-        $this->assertNotContains('-----BEGIN CERTIFICATE-----', $cert);
-        $this->assertNotContains('-----END CERTIFICATE-----', $cert);
+        $this->assertStringNotContainsString('-----BEGIN CERTIFICATE-----', $cert);
+        $this->assertStringNotContainsString('-----END CERTIFICATE-----', $cert);
         $this->assertEquals(860, strlen($cert));
 
         $formatedCert4 = Utils::formatCert($cert);

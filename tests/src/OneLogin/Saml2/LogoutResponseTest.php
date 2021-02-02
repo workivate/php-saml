@@ -550,7 +550,7 @@ class LogoutResponseTest extends \PHPUnit\Framework\TestCase
     public function testGetIDException()
     {
         $this->expectException(\OneLogin\Saml2\Error::class);
-        $this->expectExceptionMessage('LogoutRequest could not be processed');
+        $this->expectExceptionMessage('LogoutResponse could not be processed');
 
         $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
