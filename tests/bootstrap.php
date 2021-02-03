@@ -31,8 +31,7 @@ if (!function_exists('getUrlFromRedirect')) {
     function getUrlFromRedirect($trace)
     {
         $param_args = $trace[0]['args'][4];
-        $targeturl = $param_args['url'];
-        return $targeturl;
+        return $param_args['url'];
     }
 }
 
