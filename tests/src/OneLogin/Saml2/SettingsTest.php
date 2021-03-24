@@ -1030,13 +1030,6 @@ class SettingsTest extends \PHPUnit\Framework\TestCase
 
         $settings->setStrict(true);
         $this->assertTrue($settings->isStrict());
-
-        try {
-            $settings->setStrict('a');
-            $this->fail('Exception was not raised');
-        } catch (Exception $e) {
-            $this->assertStringContainsString('Invalid value passed to setStrict()', $e->getMessage());
-        }
     }
 
     /**

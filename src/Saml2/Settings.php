@@ -34,7 +34,7 @@ class Settings
     private $_paths = array();
 
     /**
-     * @var string
+     * @var string|null
      */
     private $_baseurl;
 
@@ -704,9 +704,9 @@ class Settings
     /**
      * Returns the x509 private key of the SP.
      *
-     * @return string SP private key
+     * @return string|null SP private key
      */
-    public function getSPkey()
+    public function getSPkey(): ?string
     {
         $key = null;
         if (isset($this->_sp['privateKey']) && !empty($this->_sp['privateKey'])) {
@@ -724,9 +724,9 @@ class Settings
     /**
      * Returns the x509 public cert of the SP.
      *
-     * @return string SP public cert
+     * @return string|null SP public cert
      */
-    public function getSPcert()
+    public function getSPcert(): ?string
     {
         $cert = null;
 
@@ -747,9 +747,9 @@ class Settings
      * planed to be used soon instead the other
      * public cert
      *
-     * @return string SP public cert New
+     * @return string|null SP public cert New
      */
-    public function getSPcertNew()
+    public function getSPcertNew(): ?string
     {
         $cert = null;
 
@@ -957,10 +957,8 @@ class Settings
      *
      * @throws Exception
      */
-    public function validateMetadata($xml)
+    public function validateMetadata(string $xml)
     {
-        assert(is_string($xml));
-
         $errors = array();
         $res = Utils::validateXML($xml, 'saml-schema-metadata-2.0.xsd', $this->_debug, $this->getSchemasPath());
         if (!$res instanceof DOMDocument) {
@@ -1075,17 +1073,10 @@ class Settings
      * Activates or deactivates the strict mode.
      *
      * @param bool $value Strict parameter
-     *
-     * @throws Exception
-     *
      * @return void
      */
-    public function setStrict($value): void
+    public function setStrict(bool $value): void
     {
-        if (!is_bool($value)) {
-            throw new Exception('Invalid value passed to setStrict()');
-        }
-
         $this->_strict = $value;
     }
 

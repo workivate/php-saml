@@ -1675,13 +1675,6 @@ class AuthTest extends \PHPUnit\Framework\TestCase
         $auth->setStrict(false);
         $settings = $auth->getSettings();
         $this->assertFalse($settings->isStrict());
-
-        try {
-            $auth->setStrict('a');
-            $this->fail('Exception was not raised');
-        } catch (Exception $e) {
-            $this->assertStringContainsString('Invalid value passed to setStrict()', $e->getMessage());
-        }
     }
 
     /**
@@ -1876,7 +1869,6 @@ class AuthTest extends \PHPUnit\Framework\TestCase
 
         $auth->processResponse();
         $this->assertNotEmpty($auth->getErrors());
-        $this->assertNull($auth->getLastMessageId());
         $this->assertNull($auth->getLastMessageId());
         $this->assertNull($auth->getLastAssertionId());
         $this->assertNull($auth->getLastAssertionNotOnOrAfter());

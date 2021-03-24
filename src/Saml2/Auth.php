@@ -816,19 +816,19 @@ class Auth
     }
 
     /**
-     * @return string The ID of the last message processed
+     * @return string|null The ID of the last message processed
      */
-    public function getLastMessageId()
+    public function getLastMessageId(): ?string
     {
-        return $this->_lastMessageId ?? '';
+        return $this->_lastMessageId;
     }
 
     /**
-     * @return string The ID of the last assertion processed
+     * @return string|null The ID of the last assertion processed
      */
-    public function getLastAssertionId()
+    public function getLastAssertionId(): ?string
     {
-        return $this->_lastAssertionId ?? '';
+        return $this->_lastAssertionId;
     }
 
     /**
