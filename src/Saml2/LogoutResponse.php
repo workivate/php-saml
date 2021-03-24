@@ -233,8 +233,10 @@ class LogoutResponse extends AbstractResponse
      * Generates a Logout Response object.
      *
      * @param string $inResponseTo InResponseTo value for the Logout Response.
+     *
+     * @return void
      */
-    public function build($inResponseTo)
+    public function build($inResponseTo): void
     {
 
         $spData = $this->_settings->getSPData();

@@ -475,8 +475,10 @@ class Response extends AbstractResponse
      * Checks if the Status is success
      *
      * @throws ValidationError If status is not success
+     *
+     * @return void
      */
-    public function checkStatus()
+    public function checkStatus(): void
     {
         $status = Utils::getStatus($this->document);
 
@@ -1073,7 +1075,7 @@ class Response extends AbstractResponse
      *
      * @param \DomNode $dom DomDocument
      *
-     * @return DOMDocument Decrypted Assertion
+     * @return DOMDocument|false Decrypted Assertion
      *
      * @throws Exception
      * @throws ValidationError

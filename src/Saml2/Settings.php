@@ -155,9 +155,12 @@ class Settings
 
     /**
      * Sets the paths of the different folders
+     *
      * @suppress PhanUndeclaredConstant
+     *
+     * @return void
      */
-    private function _loadPaths()
+    private function _loadPaths(): void
     {
         $basePath = dirname(dirname(__DIR__)) . '/';
         $this->_paths = array(
@@ -230,9 +233,10 @@ class Settings
      * Set schemas path
      *
      * @param string $path
-     * @return $this
+     *
+     * @return void
      */
-    public function setSchemasPath($path)
+    public function setSchemasPath($path): void
     {
         $this->_paths['schemas'] = $path;
     }
@@ -331,8 +335,10 @@ class Settings
 
     /**
      * Add default values if the settings info is not complete
+     *
+     * @return void
      */
-    private function _addDefaultValues()
+    private function _addDefaultValues(): void
     {
         if (!isset($this->_sp['assertionConsumerService']['binding'])) {
             $this->_sp['assertionConsumerService']['binding'] = Constants::BINDING_HTTP_POST;
@@ -988,8 +994,10 @@ class Settings
 
     /**
      * Formats the IdP cert.
+     *
+     * @return void
      */
-    public function formatIdPCert()
+    public function formatIdPCert(): void
     {
         if (isset($this->_idp['x509cert'])) {
             $this->_idp['x509cert'] = Utils::formatCert($this->_idp['x509cert']);
@@ -998,8 +1006,10 @@ class Settings
 
     /**
      * Formats the Multple IdP certs.
+     *
+     * @return void
      */
-    public function formatIdPCertMulti()
+    public function formatIdPCertMulti(): void
     {
         if (isset($this->_idp['x509certMulti'])) {
             if (isset($this->_idp['x509certMulti']['signing'])) {
@@ -1017,8 +1027,10 @@ class Settings
 
     /**
      * Formats the SP cert.
+     *
+     * @return void
      */
-    public function formatSPCert()
+    public function formatSPCert(): void
     {
         if (isset($this->_sp['x509cert'])) {
             $this->_sp['x509cert'] = Utils::formatCert($this->_sp['x509cert']);
@@ -1027,8 +1039,10 @@ class Settings
 
     /**
      * Formats the SP cert.
+     *
+     * @return void
      */
-    public function formatSPCertNew()
+    public function formatSPCertNew(): void
     {
         if (isset($this->_sp['x509certNew'])) {
             $this->_sp['x509certNew'] = Utils::formatCert($this->_sp['x509certNew']);
@@ -1037,8 +1051,10 @@ class Settings
 
     /**
      * Formats the SP private key.
+     *
+     * @return void
      */
-    public function formatSPKey()
+    public function formatSPKey(): void
     {
         if (isset($this->_sp['privateKey'])) {
             $this->_sp['privateKey'] = Utils::formatPrivateKey($this->_sp['privateKey']);
@@ -1061,8 +1077,10 @@ class Settings
      * @param bool $value Strict parameter
      *
      * @throws Exception
+     *
+     * @return void
      */
-    public function setStrict($value)
+    public function setStrict($value): void
     {
         if (!is_bool($value)) {
             throw new Exception('Invalid value passed to setStrict()');
@@ -1095,8 +1113,10 @@ class Settings
      * Set a baseurl value.
      *
      * @param string $baseurl Base URL.
+     *
+     * @return void
      */
-    public function setBaseURL($baseurl)
+    public function setBaseURL($baseurl): void
     {
         $this->_baseurl = $baseurl;
     }
@@ -1115,8 +1135,10 @@ class Settings
      * Sets the IdP certificate.
      *
      * @param string $cert IdP certificate
+     *
+     * @return void
      */
-    public function setIdPCert($cert)
+    public function setIdPCert($cert): void
     {
         $this->_idp['x509cert'] = $cert;
         $this->formatIdPCert();

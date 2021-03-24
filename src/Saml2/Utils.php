@@ -434,8 +434,10 @@ class Utils
 
     /**
      * @param $protocolRegex string
+     *
+     * @return void
      */
-    public static function setProtocolRegex($protocolRegex)
+    public static function setProtocolRegex($protocolRegex): void
     {
         if (!empty($protocolRegex)) {
             self::$_protocolRegex = $protocolRegex;
@@ -446,8 +448,10 @@ class Utils
      * Set the Base URL value.
      *
      * @param string $baseurl The base url to be used when constructing URLs
+     *
+     * @return void
      */
-    public static function setBaseURL($baseurl)
+    public static function setBaseURL($baseurl): void
     {
         if (!empty($baseurl)) {
             $baseurlpath = '/';
@@ -487,8 +491,10 @@ class Utils
 
     /**
      * @param bool $proxyVars Whether to use `X-Forwarded-*` headers to determine port/domain/protocol
+     *
+     * @return void
      */
-    public static function setProxyVars($proxyVars)
+    public static function setProxyVars($proxyVars): void
     {
         self::$_proxyVars = (bool)$proxyVars;
     }
@@ -530,16 +536,20 @@ class Utils
 
     /**
      * @param string $host The host to use when constructing URLs
+     *
+     * @return void
      */
-    public static function setSelfHost($host)
+    public static function setSelfHost($host): void
     {
         self::$_host = $host;
     }
 
     /**
      * @param string $baseurlpath The baseurl path to use when constructing URLs
+     *
+     * @return void
      */
-    public static function setBaseURLPath($baseurlpath)
+    public static function setBaseURLPath($baseurlpath): void
     {
         if (empty($baseurlpath)) {
             self::$_baseurlpath = null;
@@ -551,9 +561,9 @@ class Utils
     }
 
     /**
-     * @return string The baseurlpath to be used when constructing URLs
+     * @return null|string The baseurlpath to be used when constructing URLs
      */
-    public static function getBaseURLPath()
+    public static function getBaseURLPath(): ?string
     {
         return self::$_baseurlpath;
     }
@@ -583,16 +593,20 @@ class Utils
 
     /**
      * @param int $port The port number to use when constructing URLs
+     *
+     * @return void
      */
-    public static function setSelfPort($port)
+    public static function setSelfPort($port): void
     {
         self::$_port = $port;
     }
 
     /**
      * @param string $protocol The protocol to identify as using, usually http or https
+     *
+     * @return void
      */
-    public static function setSelfProtocol($protocol)
+    public static function setSelfProtocol($protocol): void
     {
         self::$_protocol = $protocol;
     }
@@ -726,7 +740,7 @@ class Utils
         return $selfRoutedURLNoQuery;
     }
 
-    public static function strLreplace($search, $replace, $subject)
+    public static function strLreplace($search, string $replace, $subject)
     {
         $pos = strrpos($subject, $search);
 
@@ -1034,8 +1048,10 @@ class Utils
 
     /**
      * Deletes the local session.
+     *
+     * @return void
      */
-    public static function deleteLocalSession()
+    public static function deleteLocalSession(): void
     {
 
         if (Utils::isSessionStarted()) {
@@ -1374,6 +1390,7 @@ class Utils
 
     /**
      * @param $algorithm
+     * @param int|string $algorithm
      *
      * @return bool
      */

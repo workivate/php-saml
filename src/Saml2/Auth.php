@@ -193,8 +193,10 @@ class Auth
      * @param bool $value Strict parameter
      *
      * @throws Error
+     *
+     * @return void
      */
-    public function setStrict($value)
+    public function setStrict($value): void
     {
         if (!is_bool($value)) {
             throw new Error(
@@ -210,9 +212,10 @@ class Auth
      * Set schemas path
      *
      * @param string $path
-     * @return $this
+     *
+     * @return void
      */
-    public function setSchemasPath($path)
+    public function setSchemasPath($path): void
     {
         $this->_paths['schemas'] = $path;
     }
@@ -224,8 +227,10 @@ class Auth
      *
      * @throws Error
      * @throws ValidationError
+     *
+     * @return void
      */
-    public function processResponse($requestId = null)
+    public function processResponse($requestId = null): void
     {
         $this->_errors = array();
         $this->_lastError = $this->_lastErrorException = null;
@@ -365,7 +370,7 @@ class Auth
         return Utils::redirect($url, $parameters, $stay);
     }
 
-    public function post($url, array $parameters = array(), $stay = false)
+    public function post(string $url, array $parameters = array(), bool $stay = false): ?array
     {
         assert(is_string($url) && !empty($url));
         return Utils::post($url, $parameters, $stay);
