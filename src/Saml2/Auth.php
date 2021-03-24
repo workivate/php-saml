@@ -403,41 +403,41 @@ class Auth
     /**
      * Returns the nameID
      *
-     * @return string  The nameID of the assertion
+     * @return string|null  The nameID of the assertion
      */
-    public function getNameId()
+    public function getNameId(): ?string
     {
-        return $this->_nameid ?? '';
+        return $this->_nameid;
     }
 
     /**
      * Returns the nameID Format
      *
-     * @return string  The nameID Format of the assertion
+     * @return string|null  The nameID Format of the assertion
      */
-    public function getNameIdFormat()
+    public function getNameIdFormat(): ?string
     {
-        return $this->_nameidFormat ?? '';
+        return $this->_nameidFormat;
     }
 
     /**
      * Returns the nameID NameQualifier
      *
-     * @return string  The nameID NameQualifier of the assertion
+     * @return string|null  The nameID NameQualifier of the assertion
      */
-    public function getNameIdNameQualifier()
+    public function getNameIdNameQualifier(): ?string
     {
-        return $this->_nameidNameQualifier ?? '';
+        return $this->_nameidNameQualifier;
     }
 
     /**
      * Returns the nameID SP NameQualifier
      *
-     * @return string  The nameID SP NameQualifier of the assertion
+     * @return string|null  The nameID SP NameQualifier of the assertion
      */
-    public function getNameIdSPNameQualifier()
+    public function getNameIdSPNameQualifier(): ?string
     {
-        return $this->_nameidSPNameQualifier ?? '';
+        return $this->_nameidSPNameQualifier;
     }
 
     /**
@@ -445,7 +445,7 @@ class Auth
      *
      * @return string|null  The SessionIndex of the assertion
      */
-    public function getSessionIndex()
+    public function getSessionIndex(): ?string
     {
         return $this->_sessionIndex;
     }
@@ -455,7 +455,7 @@ class Auth
      *
      * @return int|null  The SessionNotOnOrAfter of the assertion
      */
-    public function getSessionExpiration()
+    public function getSessionExpiration(): ?int
     {
         return $this->_sessionExpiration;
     }
