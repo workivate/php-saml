@@ -16,6 +16,7 @@
 namespace OneLogin\Saml2;
 
 use DOMDocument;
+use DOMElement;
 use Exception;
 
 /**
@@ -50,6 +51,7 @@ class IdPMetadataParser
 
             $xml = curl_exec($ch);
             if ($xml !== false) {
+                /** @var string $xml */
                 $metadataInfo = self::parseXML($xml, $entityId, $desiredNameIdFormat, $desiredSSOBinding, $desiredSLOBinding);
             } else {
                 throw new Exception(curl_error($ch), curl_errno($ch));
@@ -126,11 +128,13 @@ class IdPMetadataParser
 
             $idpDescriptorNodes = Utils::query($dom, $idpDescryptorXPath);
 
-            if (isset($idpDescriptorNodes) && $idpDescriptorNodes->length > 0) {
+            if ($idpDescriptorNodes->length > 0) {
                 $metadataInfo['idp'] = array();
 
+                /** @var DOMElement */
                 $idpDescriptor = $idpDescriptorNodes->item(0);
 
+                /** @psalm-var \DOMElement $idpDescriptor->parentNode */
                 if (empty($entityId) && $idpDescriptor->parentNode->hasAttribute('entityID')) {
                     $entityId = $idpDescriptor->parentNode->getAttribute('entityID');
                 }
@@ -144,9 +148,11 @@ class IdPMetadataParser
                     $ssoNodes = Utils::query($dom, './md:SingleSignOnService', $idpDescriptor);
                 }
                 if ($ssoNodes->length > 0) {
+                    /** @var DOMElement */
+                    $node = $ssoNodes->item(0);
                     $metadataInfo['idp']['singleSignOnService'] = array(
-                        'url' => $ssoNodes->item(0)->getAttribute('Location'),
-                        'binding' => $ssoNodes->item(0)->getAttribute('Binding')
+                        'url' => $node->getAttribute('Location'),
+                        'binding' => $node->getAttribute('Binding')
                     );
                 }
 
@@ -155,13 +161,15 @@ class IdPMetadataParser
                     $sloNodes = Utils::query($dom, './md:SingleLogoutService', $idpDescriptor);
                 }
                 if ($sloNodes->length > 0) {
+                    /** @var DOMElement */
+                    $node = $sloNodes->item(0);
                     $metadataInfo['idp']['singleLogoutService'] = array(
-                        'url' => $sloNodes->item(0)->getAttribute('Location'),
-                        'binding' => $sloNodes->item(0)->getAttribute('Binding')
+                        'url' => $node->getAttribute('Location'),
+                        'binding' => $node->getAttribute('Binding')
                     );
 
-                    if ($sloNodes->item(0)->hasAttribute('ResponseLocation')) {
-                        $metadataInfo['idp']['singleLogoutService']['responseUrl'] = $sloNodes->item(0)->getAttribute('ResponseLocation');
+                    if ($node->hasAttribute('ResponseLocation')) {
+                        $metadataInfo['idp']['singleLogoutService']['responseUrl'] = $node->getAttribute('ResponseLocation');
                     }
                 }
 
@@ -169,32 +177,26 @@ class IdPMetadataParser
 
                 $keyDescriptorCertEncryptionNodes = Utils::query($dom, './md:KeyDescriptor[not(contains(@use, "signing"))]/ds:KeyInfo/ds:X509Data/ds:X509Certificate', $idpDescriptor);
 
-                if (!empty($keyDescriptorCertSigningNodes) || !empty($keyDescriptorCertEncryptionNodes)) {
-                    $metadataInfo['idp']['x509certMulti'] = array();
-                    if (!empty($keyDescriptorCertSigningNodes)) {
-                        $idpInfo['x509certMulti']['signing'] = array();
-                        foreach ($keyDescriptorCertSigningNodes as $keyDescriptorCertSigningNode) {
-                            $metadataInfo['idp']['x509certMulti']['signing'][] = Utils::formatCert($keyDescriptorCertSigningNode->nodeValue, false);
-                        }
-                    }
-                    if (!empty($keyDescriptorCertEncryptionNodes)) {
-                        $idpInfo['x509certMulti']['encryption'] = array();
-                        foreach ($keyDescriptorCertEncryptionNodes as $keyDescriptorCertEncryptionNode) {
-                            $metadataInfo['idp']['x509certMulti']['encryption'][] = Utils::formatCert($keyDescriptorCertEncryptionNode->nodeValue, false);
-                        }
-                    }
+                $metadataInfo['idp']['x509certMulti'] = array();
+                foreach ($keyDescriptorCertSigningNodes as $keyDescriptorCertSigningNode) {
+                    $metadataInfo['idp']['x509certMulti']['signing'][] = Utils::formatCert($keyDescriptorCertSigningNode->nodeValue, false);
+                }
 
-                    $idpCertdata = $metadataInfo['idp']['x509certMulti'];
-                    if ((count($idpCertdata) == 1 &&
-                         ((isset($idpCertdata['signing']) && count($idpCertdata['signing']) == 1) || (isset($idpCertdata['encryption']) && count($idpCertdata['encryption']) == 1))) ||
-                         ((isset($idpCertdata['signing']) && count($idpCertdata['signing']) == 1) && isset($idpCertdata['encryption']) && count($idpCertdata['encryption']) == 1 && strcmp($idpCertdata['signing'][0], $idpCertdata['encryption'][0]) == 0)) {
-                        if (isset($metadataInfo['idp']['x509certMulti']['signing'][0])) {
-                            $metadataInfo['idp']['x509cert'] = $metadataInfo['idp']['x509certMulti']['signing'][0];
-                        } else {
-                            $metadataInfo['idp']['x509cert'] = $metadataInfo['idp']['x509certMulti']['encryption'][0];
-                        }
-                        unset($metadataInfo['idp']['x509certMulti']);
+                foreach ($keyDescriptorCertEncryptionNodes as $keyDescriptorCertEncryptionNode) {
+                    $metadataInfo['idp']['x509certMulti']['encryption'][] = Utils::formatCert($keyDescriptorCertEncryptionNode->nodeValue, false);
+                }
+
+                $idpCertdata = $metadataInfo['idp']['x509certMulti'];
+                if ((count($idpCertdata) == 1 &&
+                        ((isset($idpCertdata['signing']) && count($idpCertdata['signing']) == 1) || (isset($idpCertdata['encryption']) && count($idpCertdata['encryption']) == 1))) ||
+                        ((isset($idpCertdata['signing']) && count($idpCertdata['signing']) == 1) && isset($idpCertdata['encryption']) && count($idpCertdata['encryption']) == 1 && strcmp($idpCertdata['signing'][0], $idpCertdata['encryption'][0]) == 0)) {
+                    if (isset($metadataInfo['idp']['x509certMulti']['signing'][0])) {
+                        $metadataInfo['idp']['x509cert'] = $metadataInfo['idp']['x509certMulti']['signing'][0];
+                    } else {
+                        /** @psalm-suppress PossiblyUndefinedArrayOffset */
+                        $metadataInfo['idp']['x509cert'] = $metadataInfo['idp']['x509certMulti']['encryption'][0];
                     }
+                    unset($metadataInfo['idp']['x509certMulti']);
                 }
 
                 $nameIdFormatNodes = Utils::query($dom, './md:NameIDFormat', $idpDescriptor);
