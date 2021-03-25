@@ -844,7 +844,7 @@ class Settings
      *
      * @return string|null The url of the IdP Single Sign On Service
      */
-    public function getIdPSSOUrl()
+    public function getIdPSSOUrl(): ?string
     {
         $ssoUrl = null;
         if (isset($this->_idp['singleSignOnService']) && isset($this->_idp['singleSignOnService']['url'])) {

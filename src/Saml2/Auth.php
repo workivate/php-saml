@@ -363,7 +363,7 @@ class Auth
         return Utils::redirect($url, $parameters, $stay);
     }
 
-    public function post(string $url, array $parameters = array(), bool $stay = false): ?array
+    public function post(?string $url, array $parameters = array(), bool $stay = false): ?array
     {
         assert(!empty($url));
         return Utils::post($url, $parameters, $stay);
@@ -641,9 +641,9 @@ class Auth
     /**
      * Gets the IdP SSO url.
      *
-     * @return string The url of the IdP Single Sign On Service
+     * @return string|null The url of the IdP Single Sign On Service
      */
-    public function getSSOurl()
+    public function getSSOurl(): ?string
     {
         return $this->_settings->getIdPSSOUrl();
     }

@@ -80,10 +80,6 @@ class Utils
      */
     public static function loadXML(DOMDocument $dom, string $xml)
     {
-        assert($dom instanceof DOMDocument);
-        assert(is_string($xml));
-
-        $oldEntityLoader = null;
         $oldErrors = libxml_use_internal_errors(true);
         if (PHP_VERSION_ID < 80000) {
             $oldEntityLoader = libxml_disable_entity_loader(true);
@@ -94,6 +90,7 @@ class Utils
         libxml_clear_errors();
         libxml_use_internal_errors($oldErrors);
         if (PHP_VERSION_ID < 80000) {
+            /** @psalm-suppress PossiblyUndefinedVariable */
             libxml_disable_entity_loader($oldEntityLoader);
         }
 
@@ -156,6 +153,7 @@ class Utils
         }
         $res = $dom->schemaValidate($schemaFile);
         if (PHP_VERSION_ID < 80000) {
+            /** @psalm-suppress PossiblyNullArgument */
             libxml_disable_entity_loader($oldEntityLoader);
         }
         if (!$res) {
@@ -1154,13 +1152,13 @@ class Utils
      * @param string|null $format SP Format
      * @param string|null $cert   IdP Public cert to encrypt the nameID
      * @param string|null $nq     IdP Name Qualifier
-     * @param string|null $encAlg Encryption algorithm
+     * @param string      $encAlg Encryption algorithm
      *
      * @return string $nameIDElement DOMElement | XMLSec nameID
      *
      * @throws Exception
      */
-    public static function generateNameId(string $value, ?string $spnq = null, ?string $format = null, ?string $cert = null, ?string $nq = null, ?string $encAlg = XMLSecurityKey::AES128_CBC): string
+    public static function generateNameId(string $value, ?string $spnq = null, ?string $format = null, ?string $cert = null, ?string $nq = null, string $encAlg = XMLSecurityKey::AES128_CBC): string
     {
 
         $doc = new DOMDocument();
@@ -1518,7 +1516,7 @@ class Utils
     /**
      * Validates a signature (Message or Assertion).
      *
-     * @param string|\DomNode   $xml            The element we should validate
+     * @param string|\DOMElement|\DOMDocument $xml The element we should validate
      * @param string|null       $cert           The public cert
      * @param string|null       $fingerprint    The fingerprint of the public cert
      * @param string            $fingerprintalg The algorithm used to get the fingerprint
