@@ -810,7 +810,9 @@ class Auth
             throw new Error("Trying to embed a signature into the SAML Request but the SP private key cannot be loaded", Error::PRIVATE_KEY_NOT_FOUND);
         }
 
-        $signedSamlMessage = Utils::addSign($samlMessage, $key, $this->_settings->getSPcert(), $signAlgorithm);
+        /** @var string */
+        $spcert = $this->_settings->getSPcert();
+        $signedSamlMessage = Utils::addSign($samlMessage, $key, $spcert, $signAlgorithm);
 
         return $encode ? base64_encode($signedSamlMessage) : $signedSamlMessage;
     }

@@ -19,6 +19,7 @@ use RobRichards\XMLSecLibs\XMLSecurityKey;
 use RobRichards\XMLSecLibs\XMLSecEnc;
 
 use DOMDocument;
+use DOMElement;
 use DOMNodeList;
 use DOMXPath;
 use Exception;
@@ -53,6 +54,7 @@ class Response extends AbstractResponse
      * A DOMDocument class loaded from the SAML Response (Decrypted).
      *
      * @var DOMDocument
+     * @psalm-suppress PropertyNotSetInConstructor
      */
     public $decryptedDocument;
 
@@ -73,7 +75,7 @@ class Response extends AbstractResponse
     /**
      * NotOnOrAfter value of a valid SubjectConfirmationData node
      *
-     * @var int
+     * @var int|null
      */
     private $_validSCDNotOnOrAfter;
 
@@ -98,13 +100,15 @@ class Response extends AbstractResponse
         $this->response = base64_decode($response);
 
         $this->document = new DOMDocument();
-        $this->document = Utils::loadXML($this->document, $this->response);
-        if (!$this->document) {
+        $doc = Utils::loadXML($this->document, $this->response);
+        if (!$doc) {
             throw new ValidationError(
                 "SAML Response could not be processed",
                 ValidationError::INVALID_XML_FORMAT
             );
         }
+
+        $this->document = $doc;
 
         // Quick check for the presence of EncryptedAssertion
         $encryptedAssertionNodes = $this->document->getElementsByTagName('EncryptedAssertion');
@@ -311,6 +315,7 @@ class Response extends AbstractResponse
                 // Check the SubjectConfirmation, at least one SubjectConfirmation must be valid
                 $anySubjectConfirmation = false;
                 $subjectConfirmationNodes = $this->_queryAssertion('/saml:Subject/saml:SubjectConfirmation');
+                /** @var DOMElement $scn */
                 foreach ($subjectConfirmationNodes as $scn) {
                     if ($scn->hasAttribute('Method') && $scn->getAttribute('Method') != Constants::CM_BEARER) {
                         continue;
@@ -319,6 +324,7 @@ class Response extends AbstractResponse
                     if ($subjectConfirmationDataNodes->length == 0) {
                         continue;
                     } else {
+                        /** @var DOMElement */
                         $scnData = $subjectConfirmationDataNodes->item(0);
                         if ($scnData->hasAttribute('InResponseTo')) {
                             $inResponseTo = $scnData->getAttribute('InResponseTo');
@@ -347,6 +353,7 @@ class Response extends AbstractResponse
 
                         // Save NotOnOrAfter value
                         if ($scnData->hasAttribute('NotOnOrAfter')) {
+                            /** @psalm-var int $noa */
                             $this->_validSCDNotOnOrAfter = $noa;
                         }
                         $anySubjectConfirmation = true;
@@ -449,24 +456,28 @@ class Response extends AbstractResponse
      *
      * @throws ValidationError
      */
-    public function getAssertionId()
+    public function getAssertionId(): ?string
     {
         if (!$this->validateNumAssertions()) {
             throw new ValidationError("SAML Response must contain 1 Assertion.", ValidationError::WRONG_NUMBER_OF_ASSERTIONS);
         }
         $assertionNodes = $this->_queryAssertion("");
         $id = null;
-        if ($assertionNodes->length == 1 && $assertionNodes->item(0)->hasAttribute('ID')) {
-            $id = $assertionNodes->item(0)->getAttribute('ID');
+        if ($assertionNodes->length == 1) {
+            /** @var \DOMElement */
+            $node = $assertionNodes->item(0);
+            if ($node->hasAttribute('ID')) {
+                $id = $node->getAttribute('ID');
+            }
         }
         return $id;
     }
 
     /**
-     * @return int the NotOnOrAfter value of the valid SubjectConfirmationData
+     * @return int|null the NotOnOrAfter value of the valid SubjectConfirmationData
      * node if any
      */
-    public function getAssertionNotOnOrAfter()
+    public function getAssertionNotOnOrAfter(): ?int
     {
         return $this->_validSCDNotOnOrAfter;
     }
@@ -587,8 +598,10 @@ class Response extends AbstractResponse
         $encryptedIdDataEntries = $this->_queryAssertion('/saml:Subject/saml:EncryptedID/xenc:EncryptedData');
 
         if ($encryptedIdDataEntries->length == 1) {
+            /** @var \DOMElement */
             $encryptedData = $encryptedIdDataEntries->item(0);
 
+            /** @var string */
             $key = $this->_settings->getSPkey();
             $seckey = new XMLSecurityKey(XMLSecurityKey::RSA_1_5, array('type'=>'private'));
             $seckey->loadKey($key);
@@ -598,6 +611,7 @@ class Response extends AbstractResponse
         } else {
             $entries = $this->_queryAssertion('/saml:Subject/saml:NameID');
             if ($entries->length == 1) {
+                /** @var DOMElement */
                 $nameId = $entries->item(0);
             }
         }
@@ -722,7 +736,9 @@ class Response extends AbstractResponse
         $notOnOrAfter = null;
         $entries = $this->_queryAssertion('/saml:AuthnStatement[@SessionNotOnOrAfter]');
         if ($entries->length !== 0) {
-            $notOnOrAfter = Utils::parseSAML2Time($entries->item(0)->getAttribute('SessionNotOnOrAfter'));
+            /** @var DOMElement */
+            $node = $entries->item(0);
+            $notOnOrAfter = Utils::parseSAML2Time($node->getAttribute('SessionNotOnOrAfter'));
         }
         return $notOnOrAfter;
     }
@@ -740,7 +756,9 @@ class Response extends AbstractResponse
         $sessionIndex = null;
         $entries = $this->_queryAssertion('/saml:AuthnStatement[@SessionIndex]');
         if ($entries->length !== 0) {
-            $sessionIndex = $entries->item(0)->getAttribute('SessionIndex');
+            /** @var DOMElement */
+            $node = $entries->item(0);
+            $sessionIndex = $node->getAttribute('SessionIndex');
         }
         return $sessionIndex;
     }
@@ -780,7 +798,7 @@ class Response extends AbstractResponse
     {
         $attributes = array();
         $entries = $this->_queryAssertion('/saml:AttributeStatement/saml:Attribute');
-        /** @var $entry DOMNode */
+        /** @var \DOMElement $entry */
         foreach ($entries as $entry) {
             $attributeKeyNode = $entry->attributes->getNamedItem($keyName);
             if ($attributeKeyNode === null) {
@@ -796,6 +814,7 @@ class Response extends AbstractResponse
             $attributeValues = array();
             foreach ($entry->childNodes as $childNode) {
                 $tagName = ($childNode->prefix ? $childNode->prefix.':' : '') . 'AttributeValue';
+                /** @psalm-var \DOMElement $childNode */
                 if ($childNode->nodeType == XML_ELEMENT_NODE && $childNode->tagName === $tagName) {
                     $attributeValues[] = $childNode->nodeValue;
                 }
@@ -848,8 +867,11 @@ class Response extends AbstractResponse
         foreach ($signNodes as $signNode) {
             $responseTag = '{'.Constants::NS_SAMLP.'}Response';
             $assertionTag = '{'.Constants::NS_SAML.'}Assertion';
+            /** @var \DOMElement */
+            $parentNode = $signNode->parentNode;
 
-            $signedElement = '{'.$signNode->parentNode->namespaceURI.'}'.$signNode->parentNode->localName;
+            /** @psalm-var string $parentNode->namespaceURI */
+            $signedElement = '{'.$parentNode->namespaceURI.'}'.$parentNode->localName;
 
             if ($signedElement != $responseTag && $signedElement != $assertionTag) {
                 throw new ValidationError(
@@ -859,7 +881,7 @@ class Response extends AbstractResponse
             }
 
             // Check that reference URI matches the parent ID and no duplicate References or IDs
-            $idValue = $signNode->parentNode->getAttribute('ID');
+            $idValue = $parentNode->getAttribute('ID');
             if (empty($idValue)) {
                 throw new ValidationError(
                     'Signed Element must contain an ID. SAML Response rejected',
@@ -1025,28 +1047,48 @@ class Response extends AbstractResponse
 
         $assertionNode = '/samlp:Response/saml:Assertion';
         $signatureQuery = $assertionNode . '/ds:Signature/ds:SignedInfo/ds:Reference';
+        /** @var \DOMElement|null */
         $assertionReferenceNode = $xpath->query($signatureQuery)->item(0);
         if (!$assertionReferenceNode) {
             // is the response signed as a whole?
             $signatureQuery = '/samlp:Response/ds:Signature/ds:SignedInfo/ds:Reference';
+            /** @var \DOMElement|null */
             $responseReferenceNode = $xpath->query($signatureQuery)->item(0);
             if ($responseReferenceNode) {
-                $uri = $responseReferenceNode->attributes->getNamedItem('URI')->nodeValue;
+                $node = $responseReferenceNode->attributes->getNamedItem('URI');
+                $uri = $node ? $node->nodeValue : null;
                 if (empty($uri)) {
-                    $id = $responseReferenceNode->parentNode->parentNode->parentNode->attributes->getNamedItem('ID')->nodeValue;
+                    /**
+                     * @psalm-var \DOMElement $responseReferenceNode->parentNode->parentNode
+                     * @psalm-var \DOMElement $responseReferenceNode->parentNode->parentNode->parentNode
+                     * @var \DOMNode $node
+                     */
+                    $node = $responseReferenceNode->parentNode->parentNode->parentNode->attributes->getNamedItem('ID');
+                    $id = $node->nodeValue;
                 } else {
-                    $id = substr($responseReferenceNode->attributes->getNamedItem('URI')->nodeValue, 1);
+                    /** @var \DOMNode $node */
+                    $node = $responseReferenceNode->attributes->getNamedItem('URI');
+                    $id = substr($node->nodeValue, 1);
                 }
                 $nameQuery = "/samlp:Response[@ID='$id']/saml:Assertion" . $assertionXpath;
             } else {
                 $nameQuery = "/samlp:Response/saml:Assertion" . $assertionXpath;
             }
         } else {
-            $uri = $assertionReferenceNode->attributes->getNamedItem('URI')->nodeValue;
+            $node = $assertionReferenceNode->attributes->getNamedItem('URI');
+            $uri = $node ? $node->nodeValue : null;
             if (empty($uri)) {
-                $id = $assertionReferenceNode->parentNode->parentNode->parentNode->attributes->getNamedItem('ID')->nodeValue;
+                /**
+                 * @psalm-var \DOMElement $assertionReferenceNode->parentNode->parentNode
+                 * @psalm-var \DOMElement $assertionReferenceNode->parentNode->parentNode->parentNode
+                 * @var \DOMNode $node
+                 */
+                $node = $assertionReferenceNode->parentNode->parentNode->parentNode->attributes->getNamedItem('ID');
+                $id = $node->nodeValue;
             } else {
-                $id = substr($assertionReferenceNode->attributes->getNamedItem('URI')->nodeValue, 1);
+                /** @var \DOMNode */
+                $node = $assertionReferenceNode->attributes->getNamedItem('URI');
+                $id = substr($node->nodeValue, 1);
             }
             $nameQuery = $assertionNode."[@ID='$id']" . $assertionXpath;
         }
@@ -1073,14 +1115,14 @@ class Response extends AbstractResponse
     /**
      * Decrypts the Assertion (DOMDocument)
      *
-     * @param \DomNode $dom DomDocument
+     * @param \DOMDocument $dom
      *
-     * @return DOMDocument|false Decrypted Assertion
+     * @return \DOMDocument Decrypted Assertion
      *
      * @throws Exception
      * @throws ValidationError
      */
-    protected function decryptAssertion(\DomNode $dom)
+    protected function decryptAssertion(\DomNode $dom): \DOMDocument
     {
         $pem = $this->_settings->getSPkey();
 
@@ -1092,6 +1134,7 @@ class Response extends AbstractResponse
         }
 
         $objenc = new XMLSecEnc();
+        /** @var \DOMElement|null */
         $encData = $objenc->locateEncryptedData($dom);
         if (!$encData) {
             throw new ValidationError(
@@ -1112,8 +1155,10 @@ class Response extends AbstractResponse
         $key = null;
         if ($objKeyInfo = $objenc->locateKeyInfo($objKey)) {
             if ($objKeyInfo->isEncrypted) {
+                /** @var XMLSecEnc */
                 $objencKey = $objKeyInfo->encryptedCtx;
                 $objKeyInfo->loadKey($pem, false, false);
+                /** @var string */
                 $key = $objencKey->decryptKey($objKeyInfo);
             } else {
                 // symmetric encryption key support
@@ -1122,9 +1167,10 @@ class Response extends AbstractResponse
         }
 
         if (empty($objKey->key)) {
-            $objKey->loadKey($key);
+            $objKey->loadKey($key ?? '');
         }
 
+        /** @var string */
         $decryptedXML = $objenc->decryptNode($objKey, false);
         $decrypted = new DOMDocument();
         $check = Utils::loadXML($decrypted, $decryptedXML);
@@ -1135,7 +1181,9 @@ class Response extends AbstractResponse
             return $decrypted;
         } else {
             $decrypted = $decrypted->documentElement;
+            /** @var \DOMElement */
             $encryptedAssertion = $encData->parentNode;
+            /** @var \DOMElement */
             $container = $encryptedAssertion->parentNode;
 
             // Fix possible issue with saml namespace
@@ -1159,7 +1207,10 @@ class Response extends AbstractResponse
 
             // Rebuild the DOM will fix issues with namespaces as well
             $dom = new DOMDocument();
-            return Utils::loadXML($dom, $container->ownerDocument->saveXML());
+            /** @psalm-var DOMDocument $container->ownerDocument */
+            $result = Utils::loadXML($dom, $container->ownerDocument->saveXML());
+            assert($result instanceof DOMDocument);
+            return $result;
         }
     }
 
