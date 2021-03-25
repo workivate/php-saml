@@ -672,7 +672,7 @@ class Utils
 
             // strip the port
             if (false !== strpos($currentHost, ':')) {
-                list($currentHost, $port) = explode(':', $currentHost, 2);
+                list(, $port) = explode(':', $currentHost, 2);
                 if (is_numeric($port)) {
                     $portnumber = $port;
                 }

@@ -664,11 +664,10 @@ class Settings
                 }
             }
 
-            foreach ($settings['contactPerson'] as $type => $contact) {
-                if (!isset($contact['givenName']) || empty($contact['givenName'])
-                    || !isset($contact['emailAddress']) || empty($contact['emailAddress'])
+            foreach ($settings['contactPerson'] as $contact) {
+                if (empty($contact['givenName']) || empty($contact['emailAddress'])
                 ) {
-                    $errors[] = 'contact_not_enought_data';
+                    $errors[] = 'contact_not_enough_data';
                     break;
                 }
             }
@@ -676,11 +675,8 @@ class Settings
 
         if (isset($settings['organization'])) {
             foreach ($settings['organization'] as $organization) {
-                if (!isset($organization['name']) || empty($organization['name'])
-                    || !isset($organization['displayname']) || empty($organization['displayname'])
-                    || !isset($organization['url']) || empty($organization['url'])
-                ) {
-                    $errors[] = 'organization_not_enought_data';
+                if (empty($organization['name']) || empty($organization['displayname']) || empty($organization['url'])) {
+                    $errors[] = 'organization_not_enough_data';
                     break;
                 }
             }
@@ -969,7 +965,7 @@ class Settings
             if ($element->tagName !== 'md:EntityDescriptor') {
                 $errors[] = 'noEntityDescriptor_xml';
             } else {
-                $validUntil = $cacheDuration = $expireTime = null;
+                $validUntil = $cacheDuration = null;
 
                 if ($element->hasAttribute('validUntil')) {
                     $validUntil = Utils::parseSAML2Time($element->getAttribute('validUntil'));

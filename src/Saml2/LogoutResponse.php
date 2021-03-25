@@ -27,7 +27,7 @@ class LogoutResponse extends AbstractResponse
     /**
      * Contains the ID of the Logout Response
      *
-     * @var string
+     * @var string|null
      */
     public $id;
 
@@ -48,7 +48,7 @@ class LogoutResponse extends AbstractResponse
     /**
      * A DOMDocument class loaded from the SAML LogoutResponse.
      *
-     * @var DOMDocument
+     * @var DOMDocument|null
      */
     public $document;
 
@@ -87,14 +87,16 @@ class LogoutResponse extends AbstractResponse
                 $this->_logoutResponse = $decoded;
             }
             $this->document = new DOMDocument();
-            $this->document = Utils::loadXML($this->document, $this->_logoutResponse);
+            $doc = Utils::loadXML($this->document, $this->_logoutResponse);
 
-            if (false === $this->document) {
+            if (false === $doc) {
                 throw new Error(
                     "LogoutResponse could not be processed",
                     Error::SAML_LOGOUTRESPONSE_INVALID
                 );
             }
+
+            $this->document = $doc;
 
             if ($this->document->documentElement->hasAttribute('ID')) {
                 $this->id = $this->document->documentElement->getAttribute('ID');
@@ -128,7 +130,10 @@ class LogoutResponse extends AbstractResponse
         if ($entries->length != 1) {
             return null;
         }
-        return $entries->item(0)->getAttribute('Value');
+
+        /** @var \DOMElement */
+        $node = $entries->item(0); 
+        return $node->getAttribute('Value');
     }
 
     /**
@@ -143,6 +148,7 @@ class LogoutResponse extends AbstractResponse
      */
     public function isValid($requestId = null, $retrieveParametersFromServer = false)
     {
+        assert($this->document !== null);
         $this->_error = null;
         try {
             $idpData = $this->_settings->getIdPData();
@@ -225,8 +231,8 @@ class LogoutResponse extends AbstractResponse
      */
     private function _query($query)
     {
+        assert($this->document !== null);
         return Utils::query($this->document, $query);
-
     }
 
     /**
@@ -274,13 +280,14 @@ LOGOUTRESPONSE;
     public function getResponse($deflate = null)
     {
         $logoutResponse = $this->_logoutResponse;
+        assert($logoutResponse !== null);
 
         if (is_null($deflate)) {
             $deflate = $this->_settings->shouldCompressResponses();
         }
 
         if ($deflate) {
-            $logoutResponse = gzdeflate($this->_logoutResponse);
+            $logoutResponse = gzdeflate($logoutResponse);
         }
         return base64_encode($logoutResponse);
     }
@@ -310,9 +317,9 @@ LOGOUTRESPONSE;
     }
 
     /**
-     * @return string the ID of the Response
+     * @return string|null the ID of the Response
      */
-    public function getId()
+    public function getId(): ?string
     {
         return $this->id;
     }
