@@ -34,7 +34,7 @@ class Settings
     private $_paths = array();
 
     /**
-     * @var string
+     * @var string|null
      */
     private $_baseurl;
 
@@ -155,9 +155,12 @@ class Settings
 
     /**
      * Sets the paths of the different folders
+     *
      * @suppress PhanUndeclaredConstant
+     *
+     * @return void
      */
-    private function _loadPaths()
+    private function _loadPaths(): void
     {
         $basePath = dirname(dirname(__DIR__)) . '/';
         $this->_paths = array(
@@ -230,9 +233,10 @@ class Settings
      * Set schemas path
      *
      * @param string $path
-     * @return $this
+     *
+     * @return void
      */
-    public function setSchemasPath($path)
+    public function setSchemasPath($path): void
     {
         $this->_paths['schemas'] = $path;
     }
@@ -331,8 +335,10 @@ class Settings
 
     /**
      * Add default values if the settings info is not complete
+     *
+     * @return void
      */
-    private function _addDefaultValues()
+    private function _addDefaultValues(): void
     {
         if (!isset($this->_sp['assertionConsumerService']['binding'])) {
             $this->_sp['assertionConsumerService']['binding'] = Constants::BINDING_HTTP_POST;
@@ -658,11 +664,10 @@ class Settings
                 }
             }
 
-            foreach ($settings['contactPerson'] as $type => $contact) {
-                if (!isset($contact['givenName']) || empty($contact['givenName'])
-                    || !isset($contact['emailAddress']) || empty($contact['emailAddress'])
+            foreach ($settings['contactPerson'] as $contact) {
+                if (empty($contact['givenName']) || empty($contact['emailAddress'])
                 ) {
-                    $errors[] = 'contact_not_enought_data';
+                    $errors[] = 'contact_not_enough_data';
                     break;
                 }
             }
@@ -670,11 +675,8 @@ class Settings
 
         if (isset($settings['organization'])) {
             foreach ($settings['organization'] as $organization) {
-                if (!isset($organization['name']) || empty($organization['name'])
-                    || !isset($organization['displayname']) || empty($organization['displayname'])
-                    || !isset($organization['url']) || empty($organization['url'])
-                ) {
-                    $errors[] = 'organization_not_enought_data';
+                if (empty($organization['name']) || empty($organization['displayname']) || empty($organization['url'])) {
+                    $errors[] = 'organization_not_enough_data';
                     break;
                 }
             }
@@ -698,9 +700,9 @@ class Settings
     /**
      * Returns the x509 private key of the SP.
      *
-     * @return string SP private key
+     * @return string|null SP private key
      */
-    public function getSPkey()
+    public function getSPkey(): ?string
     {
         $key = null;
         if (isset($this->_sp['privateKey']) && !empty($this->_sp['privateKey'])) {
@@ -718,9 +720,9 @@ class Settings
     /**
      * Returns the x509 public cert of the SP.
      *
-     * @return string SP public cert
+     * @return string|null SP public cert
      */
-    public function getSPcert()
+    public function getSPcert(): ?string
     {
         $cert = null;
 
@@ -741,9 +743,9 @@ class Settings
      * planed to be used soon instead the other
      * public cert
      *
-     * @return string SP public cert New
+     * @return string|null SP public cert New
      */
-    public function getSPcertNew()
+    public function getSPcertNew(): ?string
     {
         $cert = null;
 
@@ -951,10 +953,8 @@ class Settings
      *
      * @throws Exception
      */
-    public function validateMetadata($xml)
+    public function validateMetadata(string $xml)
     {
-        assert(is_string($xml));
-
         $errors = array();
         $res = Utils::validateXML($xml, 'saml-schema-metadata-2.0.xsd', $this->_debug, $this->getSchemasPath());
         if (!$res instanceof DOMDocument) {
@@ -965,7 +965,7 @@ class Settings
             if ($element->tagName !== 'md:EntityDescriptor') {
                 $errors[] = 'noEntityDescriptor_xml';
             } else {
-                $validUntil = $cacheDuration = $expireTime = null;
+                $validUntil = $cacheDuration = null;
 
                 if ($element->hasAttribute('validUntil')) {
                     $validUntil = Utils::parseSAML2Time($element->getAttribute('validUntil'));
@@ -988,8 +988,10 @@ class Settings
 
     /**
      * Formats the IdP cert.
+     *
+     * @return void
      */
-    public function formatIdPCert()
+    public function formatIdPCert(): void
     {
         if (isset($this->_idp['x509cert'])) {
             $this->_idp['x509cert'] = Utils::formatCert($this->_idp['x509cert']);
@@ -998,8 +1000,10 @@ class Settings
 
     /**
      * Formats the Multple IdP certs.
+     *
+     * @return void
      */
-    public function formatIdPCertMulti()
+    public function formatIdPCertMulti(): void
     {
         if (isset($this->_idp['x509certMulti'])) {
             if (isset($this->_idp['x509certMulti']['signing'])) {
@@ -1017,8 +1021,10 @@ class Settings
 
     /**
      * Formats the SP cert.
+     *
+     * @return void
      */
-    public function formatSPCert()
+    public function formatSPCert(): void
     {
         if (isset($this->_sp['x509cert'])) {
             $this->_sp['x509cert'] = Utils::formatCert($this->_sp['x509cert']);
@@ -1027,8 +1033,10 @@ class Settings
 
     /**
      * Formats the SP cert.
+     *
+     * @return void
      */
-    public function formatSPCertNew()
+    public function formatSPCertNew(): void
     {
         if (isset($this->_sp['x509certNew'])) {
             $this->_sp['x509certNew'] = Utils::formatCert($this->_sp['x509certNew']);
@@ -1037,8 +1045,10 @@ class Settings
 
     /**
      * Formats the SP private key.
+     *
+     * @return void
      */
-    public function formatSPKey()
+    public function formatSPKey(): void
     {
         if (isset($this->_sp['privateKey'])) {
             $this->_sp['privateKey'] = Utils::formatPrivateKey($this->_sp['privateKey']);
@@ -1059,15 +1069,10 @@ class Settings
      * Activates or deactivates the strict mode.
      *
      * @param bool $value Strict parameter
-     *
-     * @throws Exception
+     * @return void
      */
-    public function setStrict($value)
+    public function setStrict(bool $value): void
     {
-        if (!is_bool($value)) {
-            throw new Exception('Invalid value passed to setStrict()');
-        }
-
         $this->_strict = $value;
     }
 
@@ -1095,8 +1100,10 @@ class Settings
      * Set a baseurl value.
      *
      * @param string $baseurl Base URL.
+     *
+     * @return void
      */
-    public function setBaseURL($baseurl)
+    public function setBaseURL($baseurl): void
     {
         $this->_baseurl = $baseurl;
     }
@@ -1115,8 +1122,10 @@ class Settings
      * Sets the IdP certificate.
      *
      * @param string $cert IdP certificate
+     *
+     * @return void
      */
-    public function setIdPCert($cert)
+    public function setIdPCert($cert): void
     {
         $this->_idp['x509cert'] = $cert;
         $this->formatIdPCert();

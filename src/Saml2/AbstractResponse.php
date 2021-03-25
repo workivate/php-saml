@@ -4,7 +4,7 @@ namespace OneLogin\Saml2;
 
 abstract class AbstractResponse
 {
-    protected function checkDestination(string $destination, string $currentURL, array $security, string $what)
+    protected function checkDestination(string $destination, string $currentURL, array $security, string $what): void
     {
         if (empty($destination)) {
             if (!$security['relaxDestinationValidation']) {

@@ -50,17 +50,13 @@ class Error extends Exception
      * @param int        $code The code error (defined in the error class).
      * @param array|null $args Arguments used in the message that describes the error.
      */
-    public function __construct($msg, $code = 0, $args = array())
+    public function __construct(string $msg, int $code = 0, ?array $args = array())
     {
-        assert(is_string($msg));
-        assert(is_int($code));
-
         if (!isset($args)) {
             $args = array();
         }
-        $params = array_merge(array($msg), $args);
-        $message = call_user_func_array('sprintf', $params);
 
+        $message = vsprintf($msg, $args);
         parent::__construct($message, $code);
     }
 }

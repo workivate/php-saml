@@ -18,6 +18,8 @@ namespace OneLogin\Saml2;
 use RobRichards\XMLSecLibs\XMLSecurityKey;
 
 use DOMDocument;
+use DOMElement;
+use DOMNode;
 use Exception;
 
 /**
@@ -49,7 +51,7 @@ class LogoutRequest extends AbstractResponse
     /**
      * After execute a validation process, this var contains the cause
      *
-     * @var Exception
+     * @var Exception|null
      */
     private $_error;
 
@@ -218,19 +220,25 @@ LOGOUTREQUEST;
      * @throws Exception
      * @throws ValidationError
      */
-    public static function getNameIdData($request, $key = null)
+    public static function getNameIdData($request, ?string $key = null): array
     {
         if ($request instanceof DOMDocument) {
             $dom = $request;
         } else {
             $dom = new DOMDocument();
             $dom = Utils::loadXML($dom, $request);
+
+            if (!$dom) {
+                throw new ValidationError('Bad XML', ValidationError::INVALID_XML_FORMAT);
+            }
         }
 
         $encryptedEntries = Utils::query($dom, '/samlp:LogoutRequest/saml:EncryptedID');
 
         if ($encryptedEntries->length == 1) {
-            $encryptedDataNodes = $encryptedEntries->item(0)->getElementsByTagName('EncryptedData');
+            /** @var DOMElement */
+            $node = $encryptedEntries->item(0);
+            $encryptedDataNodes = $node->getElementsByTagName('EncryptedData');
             $encryptedData = $encryptedDataNodes->item(0);
 
             if (empty($key)) {
@@ -248,6 +256,7 @@ LOGOUTREQUEST;
         } else {
             $entries = Utils::query($dom, '/samlp:LogoutRequest/saml:NameID');
             if ($entries->length == 1) {
+                /** @var DOMElement */
                 $nameId = $entries->item(0);
             }
         }
@@ -304,6 +313,10 @@ LOGOUTREQUEST;
         } else {
             $dom = new DOMDocument();
             $dom = Utils::loadXML($dom, $request);
+
+            if (!$dom) {
+                throw new ValidationError('Bad XML', ValidationError::INVALID_XML_FORMAT);
+            }
         }
 
         $issuer = null;
@@ -333,6 +346,10 @@ LOGOUTREQUEST;
         } else {
             $dom = new DOMDocument();
             $dom = Utils::loadXML($dom, $request);
+
+            if (!$dom) {
+                throw new ValidationError('Bad XML', ValidationError::INVALID_XML_FORMAT);
+            }
         }
 
         $sessionIndexes = array();
@@ -359,6 +376,9 @@ LOGOUTREQUEST;
         try {
             $dom = new DOMDocument();
             $dom = Utils::loadXML($dom, $this->_logoutRequest);
+            if (!$dom) {
+                throw new ValidationError('Invalid SAML Logout Request - bad XML', ValidationError::INVALID_XML_FORMAT);
+            }
 
             $idpData = $this->_settings->getIdPData();
             $idPEntityId = $idpData['entityId'];
@@ -438,7 +458,7 @@ LOGOUTREQUEST;
     /**
      * After execute a validation process, if fails this method returns the Exception of the cause
      *
-     * @return Exception Cause
+     * @return Exception|null Cause
      */
     public function getErrorException()
     {
