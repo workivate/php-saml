@@ -798,6 +798,9 @@ class Response extends AbstractResponse
     {
         $attributes = array();
         $entries = $this->_queryAssertion('/saml:AttributeStatement/saml:Attribute');
+
+        $security = $this->_settings->getSecurityData();
+        $allowRepeatAttributeName = $security['allowRepeatAttributeName'];
         /** @var \DOMElement $entry */
         foreach ($entries as $entry) {
             $attributeKeyNode = $entry->attributes->getNamedItem($keyName);
@@ -806,10 +809,12 @@ class Response extends AbstractResponse
             }
             $attributeKeyName = $attributeKeyNode->nodeValue;
             if (in_array($attributeKeyName, array_keys($attributes))) {
-                throw new ValidationError(
-                    "Found an Attribute element with duplicated ".$keyName,
-                    ValidationError::DUPLICATED_ATTRIBUTE_NAME_FOUND
-                );
+                if (!$allowRepeatAttributeName) {
+                    throw new ValidationError(
+                        "Found an Attribute element with duplicated ".$keyName,
+                        ValidationError::DUPLICATED_ATTRIBUTE_NAME_FOUND
+                    );
+                }
             }
             $attributeValues = array();
             foreach ($entry->childNodes as $childNode) {
@@ -819,7 +824,12 @@ class Response extends AbstractResponse
                     $attributeValues[] = $childNode->nodeValue;
                 }
             }
-            $attributes[$attributeKeyName] = $attributeValues;
+
+            if (in_array($attributeKeyName, array_keys($attributes))) {
+                $attributes[$attributeKeyName] = array_merge($attributes[$attributeKeyName], $attributeValues);
+            } else {
+                $attributes[$attributeKeyName] = $attributeValues;
+            }
         }
         return $attributes;
     }

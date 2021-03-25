@@ -1,15 +1,16 @@
-<phpunit bootstrap="./tests/bootstrap.php" colors="true">
-    <php>
-        <env name="IS_TESTING" value="yes"/>
-    </php>
-    <testsuites>
-        <testsuite name="OneLogin PHP-SAML Test Suite">
-            <directory>./tests/src</directory>
-        </testsuite>
-    </testsuites>
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory>./src</directory>
-        </whitelist>
-    </filter>
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="./tests/bootstrap.php" colors="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage processUncoveredFiles="true">
+    <include>
+      <directory>./src</directory>
+    </include>
+  </coverage>
+  <php>
+    <env name="IS_TESTING" value="yes"/>
+  </php>
+  <testsuites>
+    <testsuite name="OneLogin PHP-SAML Test Suite">
+      <directory>./tests/src</directory>
+    </testsuite>
+  </testsuites>
 </phpunit>
