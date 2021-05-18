@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -60,7 +60,7 @@ jobs:
   psalm:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -90,7 +90,7 @@ jobs:
     needs: build
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 0
 
