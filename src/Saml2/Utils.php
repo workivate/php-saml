@@ -15,17 +15,17 @@
 
 namespace OneLogin\Saml2;
 
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use RobRichards\XMLSecLibs\XMLSecurityDSig;
-use RobRichards\XMLSecLibs\XMLSecEnc;
-
 use DOMDocument;
 use DOMElement;
-use DOMNodeList;
 use DomNode;
+
+use DOMNodeList;
 use DOMXPath;
 use Exception;
 use InvalidArgumentException;
+use RobRichards\XMLSecLibs\XMLSecEnc;
+use RobRichards\XMLSecLibs\XMLSecurityDSig;
+use RobRichards\XMLSecLibs\XMLSecurityKey;
 
 /**
  * Utils of OneLogin PHP Toolkit
@@ -208,8 +208,13 @@ class Utils
             $resultNode = $targetNode->parentNode->insertBefore($clonedNode, $targetNode);
         }
 
-        foreach ($sourceNode->childNodes as $child) {
-            self::treeCopyReplace($resultNode, $child, true);
+        // The most funny thing is that, contrary to what the documentation says, childNodes can be `null`
+        // and this is exactly what happens in PHP 7.4.3 with $sourceNode being DOMText
+        /** @psalm-suppress RedundantCondition */
+        if ($sourceNode->childNodes) {
+            foreach ($sourceNode->childNodes as $child) {
+                self::treeCopyReplace($resultNode, $child, true);
+            }
         }
 
         if (!$recurse) {
