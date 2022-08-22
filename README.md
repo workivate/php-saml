@@ -1,3 +1,53 @@
+# LifeWorks fork of SAML PHP
+This repository is a fork from OneLogin's php-saml repository (see below)
+
+It appears that the Master branch of the upstream repository is not how releases are managed, but in the Lifeworks repository we maintain the normal process of feature branch -> Develop -> Master for releases.
+
+Version
+-------
+2022-08-22 : As part of the preparation for upgrading all PHP code bases to PHP 8.1 (and specifically wa-sso) this package has been synced with the latest changes from the upstream branch, tag version 4.1.0
+
+Notes
+-----
+As at August 2022, the upstream is not considered to be under active development
+
+https://github.com/onelogin/php-saml/issues/531
+
+In order to make the PHPUnit tests pass, a number of changes that are maintained in the LifeWork Develop branch have been included. 
+
+Unit Testing and Static Analysis
+--------------------------------
+There is no Docker container for this package so PHPUnit and PHPStan must be run from the local development environment.
+
+PHP 8.1 is required
+
+####PHPUnit
+Runs the unit tests. This includes the changes maintained within the LifeWorks Repository
+```
+./vendor/bin/phpunit
+```
+
+####PHPStan
+PHPStan has been added as part of the PHP 8.1 and Tag 4.1 upgrade work.
+```
+./vendor/bin/phpstan analyse --memory-limit=-1 -c phpstan.neon
+```
+
+Usage
+-----
+Unlike most other php packages which have been added to the Lifeworks GemFury repository, php-saml was being included directly from the GitHub repository. With this upgrade, the package will be added to GemFury to bring it inline with LifeWorks best practices.
+
+GemFury is the preferred package repository as it works for both local development and also for the CI/CD pipelines.
+
+A ssuch, please remember to do the following when any changes are made.
+
+Update the version in composer.json
+Create a new tag and release in Github that matches the new version
+Manually download the resulting release ZIP file and upload it to the Lifeworks GemFury account
+Run Composer
+
+composer require "workivate/php-saml":"^4.1"
+
 # OneLogin's SAML PHP Toolkit Compatible with PHP 7.X & 8.X
 
 [![Build Status](https://api.travis-ci.org/onelogin/php-saml.png?branch=master)](http://travis-ci.org/onelogin/php-saml) [![Coverage Status](https://coveralls.io/repos/onelogin/php-saml/badge.png)](https://coveralls.io/r/onelogin/php-saml) [![License](https://poser.pugx.org/onelogin/php-saml/license.png)](https://packagist.org/packages/onelogin/php-saml)

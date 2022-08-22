@@ -1,0 +1,15 @@
+includes:
+	- vendor/phpstan/phpstan-phpunit/extension.neon
+	- phpstan-baseline.neon
+parameters:
+	level: 4
+	treatPhpDocTypesAsCertain: false
+	paths:
+		- ./src
+		- ./tests
+	ignoreErrors:
+	parallel:
+		processTimeout: 600.0
+		maximumNumberOfProcesses: 2
+	excludePaths:
+		- './tests/ZendModStandard'
