@@ -1,3 +1,53 @@
+# LifeWorks fork of SAML PHP
+This repository is a fork from OneLogin's php-saml repository (see below)
+
+It appears that the Master branch of the upstream repository is not how releases are managed, but in the Lifeworks repository we maintain the normal process of feature branch -> Develop -> Master for releases.
+
+Version
+-------
+2022-08-22 : As part of the preparation for upgrading all PHP code bases to PHP 8.1 (and specifically wa-sso) this package has been synced with the latest changes from the upstream branch, tag version 4.1.0
+
+Notes
+-----
+As at August 2022, the upstream is not considered to be under active development
+
+https://github.com/onelogin/php-saml/issues/531
+
+In order to make the PHPUnit tests pass, a number of changes that are maintained in the LifeWork Develop branch have been included. 
+
+Unit Testing and Static Analysis
+--------------------------------
+There is no Docker container for this package so PHPUnit and PHPStan must be run from the local development environment.
+
+PHP 8.1 is required
+
+####PHPUnit
+Runs the unit tests. This includes the changes maintained within the LifeWorks Repository
+```
+./vendor/bin/phpunit
+```
+
+####PHPStan
+PHPStan has been added as part of the PHP 8.1 and Tag 4.1 upgrade work.
+```
+./vendor/bin/phpstan analyse --memory-limit=-1 -c phpstan.neon
+```
+
+Usage
+-----
+Unlike most other php packages which have been added to the Lifeworks GemFury repository, php-saml was being included directly from the GitHub repository. With this upgrade, the package will be added to GemFury to bring it inline with LifeWorks best practices.
+
+GemFury is the preferred package repository as it works for both local development and also for the CI/CD pipelines.
+
+A ssuch, please remember to do the following when any changes are made.
+
+Update the version in composer.json
+Create a new tag and release in Github that matches the new version
+Manually download the resulting release ZIP file and upload it to the Lifeworks GemFury account
+Run Composer
+
+composer require "workivate/php-saml":"^4.1"
+
 # OneLogin's SAML PHP Toolkit Compatible with PHP 7.X & 8.X
 
 [![Build Status](https://api.travis-ci.org/onelogin/php-saml.png?branch=master)](http://travis-ci.org/onelogin/php-saml) [![Coverage Status](https://coveralls.io/repos/onelogin/php-saml/badge.png)](https://coveralls.io/r/onelogin/php-saml) [![License](https://poser.pugx.org/onelogin/php-saml/license.png)](https://packagist.org/packages/onelogin/php-saml)
@@ -147,6 +197,37 @@ something other than SHA1 (see https://shattered.io/ ). Otherwise your
 environment is not secure and will be exposed to attacks.
 
 In production also we highly recommended to register on the settings the IdP certificate instead of using the fingerprint method. The fingerprint, is a hash, so at the end is open to a collision attack that can end on a signature validation bypass. Other SAML toolkits deprecated that mechanism, we maintain it for compatibility and also to be used on test environment.
+
+
+### Avoiding Open Redirect attacks ###
+
+Some implementations uses the RelayState parameter as a way to control the flow when SSO and SLO succeeded. So basically the
+user is redirected to the value of the RelayState.
+
+If you are using Signature Validation on the HTTP-Redirect binding, you will have the RelayState value integrity covered, otherwise, and
+on HTTP-POST binding, you can't trust the RelayState so before
+executing the validation, you need to verify that its value belong
+a trusted and expected URL.
+
+Read more about Open Redirect [CWE-601](https://cwe.mitre.org/data/definitions/601.html).
+
+
+### Avoiding Reply attacks ###
+
+A reply attack is basically try to reuse an intercepted valid SAML Message in order to impersonate a SAML action (SSO or SLO).
+
+SAML Messages have a limited timelife (NotBefore, NotOnOrAfter) that
+make harder this kind of attacks, but they are still possible.
+
+In order to avoid them, the SP can keep a list of SAML Messages or Assertion IDs alredy valdidated and processed. Those values only need
+to be stored the amount of time of the SAML Message life time, so
+we don't need to store all processed message/assertion Ids, but the most recent ones.
+
+The OneLogin_Saml2_Auth class contains the [getLastRequestID](https://github.com/onelogin/php-saml/blob/b8214b74dd72960fa6aa88ab454667c64cea935c/src/Saml2/Auth.php#L657), [getLastMessageId](https://github.com/onelogin/php-saml/blob/b8214b74dd72960fa6aa88ab454667c64cea935c/src/Saml2/Auth.php#L762) and [getLastAssertionId](https://github.com/onelogin/php-saml/blob/b8214b74dd72960fa6aa88ab454667c64cea935c/src/Saml2/Auth.php#L770) methods to retrieve the IDs
+
+Checking that the ID of the current Message/Assertion does not exists in the list of the ones already processed will prevent reply
+attacks.
+
 
 Getting started
 ---------------
@@ -754,6 +835,8 @@ $_SESSION['samlNameidSPNameQualifier'] = $auth->getNameIdSPNameQualifier();
 $_SESSION['samlSessionIndex'] = $auth->getSessionIndex();
 
 if (isset($_POST['RelayState']) && OneLogin\Saml2\Utils::getSelfURL() != $_POST['RelayState']) {
+    // To avoid 'Open Redirect' attacks, before execute the
+    // redirection confirm the value of $_POST['RelayState'] is a // trusted URL.
     $auth->redirectTo($_POST['RelayState']);
 }
 
@@ -1092,6 +1175,8 @@ if (isset($_GET['sso'])) {    // SSO action.  Will send an AuthNRequest to the I
 
     $_SESSION['samlUserdata'] = $auth->getAttributes(); // Retrieves user data
     if (isset($_POST['RelayState']) && OneLogin\Saml2\Utils::getSelfURL() != $_POST['RelayState']) {
+        // To avoid 'Open Redirect' attacks, before execute the
+        // redirection confirm the value of $_POST['RelayState'] is a // trusted URL.
         $auth->redirectTo($_POST['RelayState']);  // Redirect if there is a
     }                                             // relayState set
 } else if (isset($_GET['sls'])) {   // Single Logout Service
@@ -1100,7 +1185,7 @@ if (isset($_GET['sso'])) {    // SSO action.  Will send an AuthNRequest to the I
     if (empty($errors)) {
         echo '<p>Sucessfully logged out</p>';
     } else {
-        echo '<p>' . implode(', ', $errors) . '</p>';
+        echo '<p>' . htmlentities(implode(', ', $errors)) . '</p>';
     }
 }
 
@@ -1384,6 +1469,8 @@ Auxiliary class that contains several methods to retrieve and process IdP metada
  * `parseXML` - Get IdP Metadata Info from XML.
  * `injectIntoSettings` - Inject metadata info into php-saml settings array.
 
+The class does not validate in any way the URL that is introduced on methods like parseRemoteXML in order to retrieve the remove XML. Usually is the same administrator that handles the Service Provider the ones that set the URL that should belong to a trusted third-party IdP.
+But there are other scenarios, like a SAAS app where the administrator of the app delegates on other administrators. In such case, extra protection should be taken in order to validate such URL inputs and avoid attacks like SSRF.
 
 For more info, look at the source code; each method is documented and details
 about what it does and how to use it are provided. Make sure to also check the doc folder where

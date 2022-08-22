@@ -343,7 +343,7 @@ class LogoutRequestTest extends \PHPUnit\Framework\TestCase
         $request2 = file_get_contents(TEST_ROOT . '/data/logout_requests/logout_request_encrypted_nameid.xml');
 
         try {
-            LogoutRequest::getNameIdData($request2);
+            $nameIdData3 = LogoutRequest::getNameIdData($request2);
             $this->fail('Error was not raised');
         } catch (Error $e) {
             $this->assertStringContainsString('Key is required in order to decrypt the NameID', $e->getMessage());
@@ -362,7 +362,7 @@ class LogoutRequestTest extends \PHPUnit\Framework\TestCase
 
         $invRequest = file_get_contents(TEST_ROOT . '/data/logout_requests/invalids/no_nameId.xml');
         try {
-            LogoutRequest::getNameIdData($invRequest);
+            $nameIdData3 = LogoutRequest::getNameIdData($invRequest);
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
             $this->assertStringContainsString('NameID not found in the Logout Request', $e->getMessage());
@@ -405,7 +405,7 @@ class LogoutRequestTest extends \PHPUnit\Framework\TestCase
 
         $request2 = file_get_contents(TEST_ROOT . '/data/logout_requests/logout_request_encrypted_nameid.xml');
         try {
-            LogoutRequest::getNameId($request2);
+            $nameId2 = LogoutRequest::getNameId($request2);
             $this->fail('Error was not raised');
         } catch (Error $e) {
             $this->assertStringContainsString('Key is required in order to decrypt the NameID', $e->getMessage());
@@ -640,7 +640,7 @@ class LogoutRequestTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($logoutRequest2->isValid());
 
         $this->_settings->setStrict(false);
-        new LogoutRequest($this->_settings, $encodedRequest);
+        $logoutRequest3 = new LogoutRequest($this->_settings, $encodedRequest);
 
         $currentURL = Utils::getSelfURLNoQuery();
         $request2 = str_replace('http://stuff.com/endpoints/endpoints/sls.php', $currentURL, $request);
@@ -768,6 +768,7 @@ class LogoutRequestTest extends \PHPUnit\Framework\TestCase
 
         $this->assertTrue($logoutRequest3->isValid());
 
+        $oldRelayState = $_GET['RelayState'];
         $_GET['RelayState'] = 'http://example.com/relaystate';
 
         $this->assertFalse($logoutRequest3->isValid());
@@ -904,7 +905,7 @@ class LogoutRequestTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetIDException()
     {
-        $this->expectException(\OneLogin\Saml2\Error::class);
+        $this->expectException(Error::class);
         $this->expectExceptionMessage('LogoutRequest could not be processed');
 
         $settingsDir = TEST_ROOT .'/settings/';
@@ -912,6 +913,6 @@ class LogoutRequestTest extends \PHPUnit\Framework\TestCase
         $settings = new Settings($settingsInfo);
         $logoutRequest = new LogoutRequest($settings);
         $xml = $logoutRequest->getXML();
-        LogoutRequest::getID($xml.'<garbage>');
+        $id1 = LogoutRequest::getID($xml.'<garbage>');
     }
 }
