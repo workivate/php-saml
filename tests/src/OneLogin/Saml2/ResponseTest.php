@@ -1115,7 +1115,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $response2 = new Response($this->_settings, $message);
 
         $this->assertFalse($response2->isValid());
-        $this->assertSame('Invalid audience for this Response (expected \'http://stuff.com/endpoints/metadata.php\', got \'http://invalid.audience.com\')', $response2->getError());
+        $this->assertSame('Invalid audience for this Response (expected &#039;http://stuff.com/endpoints/metadata.php&#039;, got &#039;http://invalid.audience.com&#039;)', $response2->getError());
     }
 
     /**
@@ -1152,12 +1152,12 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $response3 = new Response($this->_settings, $message);
 
         $this->assertFalse($response3->isValid());
-        $this->assertEquals('Invalid issuer in the Assertion/Response (expected \'http://idp.example.com/\', got \'http://invalid.issuer.example.com/\')', $response3->getError());
+        $this->assertEquals('Invalid issuer in the Assertion/Response (expected &#039;http://idp.example.com/&#039;, got &#039;http://invalid.issuer.example.com/&#039;)', $response3->getError());
 
         $response4 = new Response($this->_settings, $message2);
 
         $this->assertFalse($response4->isValid());
-        $this->assertEquals('Invalid issuer in the Assertion/Response (expected \'http://idp.example.com/\', got \'http://invalid.isser.example.com/\')', $response4->getError());
+        $this->assertEquals('Invalid issuer in the Assertion/Response (expected &#039;http://idp.example.com/&#039;, got &#039;http://invalid.isser.example.com/&#039;)', $response4->getError());
     }
 
     /**
@@ -1534,7 +1534,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $response = new Response($settings, $xml);
 
         $this->assertFalse($response->isValid());
-        $this->assertEquals('openssl_x509_read(): supplied parameter cannot be coerced into an X509 certificate!', $response->getError());
+        $this->assertStringContainsString('openssl_x509_read():', $response->getError());
     }
 
     /**
