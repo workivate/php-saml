@@ -2,10 +2,11 @@
 
 namespace OneLogin\Saml2\Tests;
 
+use OneLogin\Saml2\Error;
+use OneLogin\Saml2\Utils;
+use OneLogin\Saml2\Settings;
 use OneLogin\Saml2\Constants;
 use OneLogin\Saml2\LogoutResponse;
-use OneLogin\Saml2\Settings;
-use OneLogin\Saml2\Utils;
 
 use DomDocument;
 
@@ -121,7 +122,7 @@ class LogoutResponseTest extends \PHPUnit\Framework\TestCase
         $response = new LogoutResponse($this->_settings, $message);
         $this->_settings->setStrict(true);
         $this->assertFalse($response->isValid($requestId));
-        $this->assertEquals('The InResponseTo of the Logout Response: ONELOGIN_21584ccdfaca36a145ae990442dcd96bfe60151e, does not match the ID of the Logout request sent by the SP: invalid_request_id', $response->getError());
+        $this->assertEquals($response->getError(), 'The InResponseTo of the Logout Response: ONELOGIN_21584ccdfaca36a145ae990442dcd96bfe60151e, does not match the ID of the Logout request sent by the SP: invalid_request_id');
     }
 
 
@@ -309,6 +310,7 @@ class LogoutResponseTest extends \PHPUnit\Framework\TestCase
         $response4 = new LogoutResponse($this->_settings, $_GET['SAMLResponse']);
         $this->assertTrue($response4->isValid());
 
+        $oldRelayState = $_GET['RelayState'];
         $_GET['RelayState'] = 'http://example.com/relaystate';
         $response5 = new LogoutResponse($this->_settings, $_GET['SAMLResponse']);
         $this->assertFalse($response5->isValid());
@@ -380,6 +382,7 @@ class LogoutResponseTest extends \PHPUnit\Framework\TestCase
         include $settingsDir.'settings6.php';
         $settingsInfo['strict'] = true;
         $settingsInfo['security']['wantMessagesSigned'] = true;
+        $encodedResponse = $_GET['SAMLResponse'];
         $settings = new Settings($settingsInfo);
         $settings->setBaseURL("http://stuff.com/endpoints/endpoints/");
         $_SERVER['REQUEST_URI'] = "/endpoints/endpoints/sls.php";
@@ -549,12 +552,12 @@ class LogoutResponseTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetIDException()
     {
-        $this->expectException(\OneLogin\Saml2\Error::class);
-        $this->expectExceptionMessage('LogoutResponse could not be processed');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('LogoutRequest could not be processed');
 
         $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
         $settings = new Settings($settingsInfo);
-        new LogoutResponse($settings, '<garbage>');
+        $logoutResponse = new LogoutResponse($settings, '<garbage>');
     }
 }

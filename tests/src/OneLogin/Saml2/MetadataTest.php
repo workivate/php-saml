@@ -163,10 +163,10 @@ class MetadataTest extends \PHPUnit\Framework\TestCase
         $this->assertStringContainsString('<ds:KeyInfo><ds:X509Data><ds:X509Certificate>', $signedMetadata);
 
         try {
-            Metadata::signMetadata('', $key, $cert);
+            $signedMetadata2 = Metadata::signMetadata('', $key, $cert);
             $this->fail('Exception was not raised');
-        } catch (Exception $e) {
-            $this->assertStringContainsString('Empty string supplied as input', $e->getMessage());
+        } catch (\Error $e) {
+            $this->assertStringContainsString('Argument #1 ($source) must not be empty', $e->getMessage());
         }
     }
 
@@ -259,10 +259,10 @@ class MetadataTest extends \PHPUnit\Framework\TestCase
         $this->assertStringNotContainsString('<md:KeyDescriptor use="encryption"', $metadataWithDescriptors);
 
         try {
-            Metadata::addX509KeyDescriptors('', $cert);
+            $signedMetadata2 = Metadata::addX509KeyDescriptors('', $cert);
             $this->fail('Exception was not raised');
-        } catch (Exception $e) {
-            $this->assertStringContainsString('Error parsing metadata', $e->getMessage());
+        } catch (\Error $e) {
+            $this->assertStringContainsString('Argument #1 ($source) must not be empty', $e->getMessage());
         }
 
         libxml_use_internal_errors(true);

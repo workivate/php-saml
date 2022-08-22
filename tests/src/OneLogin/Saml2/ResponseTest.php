@@ -136,12 +136,12 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $xml3 = file_get_contents(TEST_ROOT . '/data/responses/valid_encrypted_assertion.xml.base64');
         $response3 = new Response($this->_settings, $xml3);
         $this->assertEquals('_68392312d490db6d355555cfbbd8ec95d746516f60', $response3->getNameId());
-        
+
         $xml4 = file_get_contents(TEST_ROOT . '/data/responses/invalids/no_nameid.xml.base64');
         $response4 = new Response($this->_settings, $xml4);
 
         try {
-            $response4->getNameId();
+            $nameId4 = $response4->getNameId();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
             $this->assertStringContainsString('NameID not found in the assertion of the Response', $e->getMessage());
@@ -156,7 +156,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $response5 = new Response($settings, $xml4);
 
         try {
-            $response5->getNameId();
+            $nameId5 = $response5->getNameId();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
             $this->assertStringContainsString('NameID not found in the assertion of the Response', $e->getMessage());
@@ -174,7 +174,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $response7 = new Response($settings, $xml4);
 
         try {
-            $response7->getNameId();
+            $nameId7 = $response7->getNameId();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
             $this->assertStringContainsString('NameID not found in the assertion of the Response', $e->getMessage());
@@ -195,7 +195,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $settings = new Settings($settingsInfo);
         $response10 = new Response($settings, $xml5);
         try {
-            $response10->getNameId();
+            $nameId10 = $response10->getNameId();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
             $this->assertStringContainsString('The SPNameQualifier value mistmatch the SP entityID value.', $e->getMessage());
@@ -204,7 +204,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $response11 = new Response($settings, $xml6);
 
         try {
-            $response11->getNameId();
+            $nameId11 = $response11->getNameId();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
             $this->assertStringContainsString('An empty NameID value found', $e->getMessage());
@@ -225,7 +225,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $xml2 = file_get_contents(TEST_ROOT . '/data/responses/response_encrypted_nameid.xml.base64');
         $response2 = new Response($this->_settings, $xml2);
         $this->assertEquals('urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified', $response2->getNameIdFormat());
-    
+
         $xml3 = file_get_contents(TEST_ROOT . '/data/responses/valid_encrypted_assertion.xml.base64');
         $response3 = new Response($this->_settings, $xml3);
         $this->assertEquals('urn:oasis:names:tc:SAML:2.0:nameid-format:transient', $response3->getNameIdFormat());
@@ -234,7 +234,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $response4 = new Response($this->_settings, $xml4);
 
         try {
-            $response4->getNameIdFormat();
+            $nameId4 = $response4->getNameIdFormat();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
             $this->assertStringContainsString('NameID not found in the assertion of the Response', $e->getMessage());
@@ -242,10 +242,10 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-    * Tests the getNameIdNameQualifier method of the Response
-    *
-    * @covers OneLogin\Saml2\Response::getNameIdNameQualifier
-    */
+     * Tests the getNameIdNameQualifier method of the Response
+     *
+     * @covers OneLogin\Saml2\Response::getNameIdNameQualifier
+     */
     public function testGetNameIdNameQualifier()
     {
         $xml = file_get_contents(TEST_ROOT . '/data/responses/response1.xml.base64');
@@ -260,7 +260,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $xml4 = file_get_contents(TEST_ROOT . '/data/responses/invalids/no_nameid.xml.base64');
         $response4 = new Response($this->_settings, $xml4);
         try {
-            $response4->getNameIdNameQualifier();
+            $nameId4 = $response4->getNameIdNameQualifier();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
             $this->assertStringContainsString('NameID not found in the assertion of the Response', $e->getMessage());
@@ -268,10 +268,10 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-    * Tests the getNameIdSPNameQualifier method of the Response
-    *
-    * @covers OneLogin\Saml2\Response::getNameIdSPNameQualifier
-    */
+     * Tests the getNameIdSPNameQualifier method of the Response
+     *
+     * @covers OneLogin\Saml2\Response::getNameIdSPNameQualifier
+     */
     public function testGetNameIdSPNameQualifier()
     {
         $xml = file_get_contents(TEST_ROOT . '/data/responses/response1.xml.base64');
@@ -289,7 +289,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $xml5 = file_get_contents(TEST_ROOT . '/data/responses/invalids/no_nameid.xml.base64');
         $response5 = new Response($this->_settings, $xml5);
         try {
-            $response5->getNameIdSPNameQualifier();
+            $nameId5 = $response5->getNameIdSPNameQualifier();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
             $this->assertStringContainsString('NameID not found in the assertion of the Response', $e->getMessage());
@@ -337,7 +337,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $response4 = new Response($this->_settings, $xml4);
 
         try {
-            $response4->getNameIdData();
+            $nameIdData4 = $response4->getNameIdData();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
             $this->assertStringContainsString('NameID not found in the assertion of the Response', $e->getMessage());
@@ -352,7 +352,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $response5 = new Response($settings, $xml4);
 
         try {
-            $response5->getNameIdData();
+            $nameIdData5 = $response5->getNameIdData();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
             $this->assertStringContainsString('NameID not found in the assertion of the Response', $e->getMessage());
@@ -370,7 +370,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $response7 = new Response($settings, $xml4);
 
         try {
-            $response7->getNameIdData();
+            $nameIdData7 = $response7->getNameIdData();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
             $this->assertStringContainsString('NameID not found in the assertion of the Response', $e->getMessage());
@@ -401,7 +401,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
 
         $response10 = new Response($settings, $xml5);
         try {
-            $response10->getNameIdData();
+            $nameIdData10 = $response10->getNameIdData();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
             $this->assertStringContainsString('The SPNameQualifier value mistmatch the SP entityID value.', $e->getMessage());
@@ -409,7 +409,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
 
         $response11 = new Response($settings, $xml6);
         try {
-            $response11->getNameIdData();
+            $nameIdData11 = $response11->getNameIdData();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
             $this->assertStringContainsString('An empty NameID value found', $e->getMessage());
@@ -461,7 +461,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $response->checkStatus();
 
         $xmlEnc = file_get_contents(TEST_ROOT . '/data/responses/valid_encrypted_assertion.xml.base64');
-        new Response($this->_settings, $xmlEnc);
+        $responseEnc = new Response($this->_settings, $xmlEnc);
 
         $response->checkStatus();
 
@@ -560,13 +560,13 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
 
         $xml4 = file_get_contents(TEST_ROOT . '/data/responses/invalids/no_issuer_response.xml.base64');
         $response4 = new Response($this->_settings, $xml4);
-        $response4->getIssuers();
+        $issuers = $response4->getIssuers();
         $this->assertEquals(array('http://idp.example.com/'), $response4->getIssuers());
 
         $xml5 = file_get_contents(TEST_ROOT . '/data/responses/invalids/no_issuer_assertion.xml.base64');
         $response5 = new Response($this->_settings, $xml5);
         try {
-            $response5->getIssuers();
+            $issuers = $response5->getIssuers();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
             $this->assertStringContainsString('Issuer of the Assertion not found or multiple.', $e->getMessage());
@@ -626,7 +626,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $xml4 = file_get_contents(TEST_ROOT . '/data/responses/invalids/duplicated_attributes.xml.base64');
         $response4 = new Response($this->_settings, $xml4);
         try {
-            $response4->getAttributes();
+            $attrs = $response4->getAttributes();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
             $this->assertStringContainsString('Found an Attribute element with duplicated Name', $e->getMessage());
@@ -671,7 +671,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $xml4 = file_get_contents(TEST_ROOT . '/data/responses/invalids/duplicated_attributes_with_friendly_names.xml.base64');
         $response4 = new Response($this->_settings, $xml4);
         try {
-            $response4->getAttributesWithFriendlyName();
+            $attrs = $response4->getAttributesWithFriendlyName();
             $this->fail('OneLogin\Saml2\ValidationError was not raised');
         } catch (ValidationError $e) {
             $this->assertStringContainsString('Found an Attribute element with duplicated FriendlyName', $e->getMessage());
@@ -811,7 +811,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $response = new Response($this->_settings, $xml);
 
         $this->assertEquals(1290203857, $response->getSessionNotOnOrAfter());
-        
+
         // An assertion that do not specified Session timeout should return NULL
         $xml2 = file_get_contents(TEST_ROOT . '/data/responses/response2.xml.base64');
         $response2 = new Response($this->_settings, $xml2);
@@ -862,7 +862,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
             $response3->validateTimestamps();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
-            $this->assertEquals('Could not validate timestamp: expired. Check system clock.', $e->getMessage());
+            $this->assertEquals($e->getMessage(), 'Could not validate timestamp: expired. Check system clock.');
         }
 
         $xml4 = file_get_contents(TEST_ROOT . '/data/responses/invalids/not_after_failed.xml.base64');
@@ -871,7 +871,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
             $response4->validateTimestamps();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
-            $this->assertEquals('Could not validate timestamp: expired. Check system clock.', $e->getMessage());
+            $this->assertEquals($e->getMessage(), 'Could not validate timestamp: expired. Check system clock.');
         }
 
         $xml5 = file_get_contents(TEST_ROOT . '/data/responses/invalids/not_before_failed.xml.base64');
@@ -880,7 +880,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
             $response5->validateTimestamps();
             $this->fail('ValidationError was not raised');
         } catch (ValidationError $e) {
-            $this->assertEquals('Could not validate timestamp: not yet valid. Check system clock.', $e->getMessage());
+            $this->assertEquals($e->getMessage(), 'Could not validate timestamp: not yet valid. Check system clock.');
         }
     }
 
@@ -1330,18 +1330,18 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $response2 = new Response($this->_settings, $message);
         $response2->isValid($requestId);
         $this->assertStringContainsString('The InResponseTo of the Response', $response2->getError());
-        
+
         $validRequestId = '_57bcbf70-7b1f-012e-c821-782bcb13bb38';
         $response2->isValid($validRequestId);
         $this->assertStringContainsString('No Signature found. SAML Response rejected', $response2->getError());
     }
 
     /**
-    * Tests the isValid method of the Response class
-    * Case Invalid Response, Unexpected InResponseTo
-    *
-    * @covers OneLogin\Saml2\Response::isValid
-    */
+     * Tests the isValid method of the Response class
+     * Case Invalid Response, Unexpected InResponseTo
+     *
+     * @covers OneLogin\Saml2\Response::isValid
+     */
     public function testIsInValidUnexpectedInResponseTo()
     {
         $xml = file_get_contents(TEST_ROOT . '/data/responses/unsigned_response.xml.base64');
@@ -1362,11 +1362,11 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $this->assertStringContainsString('No Signature found. SAML Response rejected', $response->getError());
     }
     /**
-    * Tests the isValid method of the Response class
-    * Case Invalid Response, No InResponseTo
-    *
-    * @covers OneLogin\Saml2\Response::isValid
-    */
+     * Tests the isValid method of the Response class
+     * Case Invalid Response, No InResponseTo
+     *
+     * @covers OneLogin\Saml2\Response::isValid
+     */
     public function testIsInValidNoInResponseTo()
     {
         $xml = file_get_contents(TEST_ROOT . '/data/responses/invalids/invalid_unpaired_inresponsesto.xml.base64');
@@ -1500,7 +1500,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
 
         $this->assertFalse($response3->isValid());
         $this->assertEquals('The assertion of the Response is not encrypted and the SP requires it', $response3->getError());
-        
+
         $settingsInfo['security']['wantAssertionsEncrypted'] = false;
         $settingsInfo['security']['wantNameIdEncrypted'] = true;
         $settingsInfo['strict'] = false;
@@ -1534,7 +1534,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $response = new Response($settings, $xml);
 
         $this->assertFalse($response->isValid());
-        $this->assertStringContainsString('openssl_x509_read():', $response->getError());
+        $this->assertEquals('openssl_x509_read(): supplied parameter cannot be coerced into an X509 certificate!', $response->getError());
     }
 
     /**
@@ -1679,7 +1679,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $xml = file_get_contents(TEST_ROOT . '/data/responses/signed_message_response.xml.base64');
         $response = new Response($this->_settings, $xml);
         $this->assertTrue($response->isValid());
-        
+
         $xml2 = file_get_contents(TEST_ROOT . '/data/responses/signed_assertion_response.xml.base64');
         $response2 = new Response($this->_settings, $xml2);
         $this->assertTrue($response2->isValid());
@@ -1738,7 +1738,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
     {
         $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings6.php';
-        
+
         $settings = new Settings($settingsInfo);
 
         $xml = file_get_contents(TEST_ROOT . '/data/responses/signed_message_response.xml.base64');

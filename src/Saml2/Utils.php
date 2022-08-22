@@ -15,17 +15,16 @@
 
 namespace OneLogin\Saml2;
 
+use RobRichards\XMLSecLibs\XMLSecurityKey;
+use RobRichards\XMLSecLibs\XMLSecurityDSig;
+use RobRichards\XMLSecLibs\XMLSecEnc;
+
 use DOMDocument;
 use DOMElement;
-use DomNode;
-
 use DOMNodeList;
+use DomNode;
 use DOMXPath;
 use Exception;
-use InvalidArgumentException;
-use RobRichards\XMLSecLibs\XMLSecEnc;
-use RobRichards\XMLSecLibs\XMLSecurityDSig;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
 
 /**
  * Utils of OneLogin PHP Toolkit
@@ -80,17 +79,17 @@ class Utils
      */
     public static function loadXML(DOMDocument $dom, string $xml)
     {
-        $oldErrors = libxml_use_internal_errors(true);
+        assert($dom instanceof DOMDocument);
+        assert(is_string($xml));
+
+        $oldEntityLoader = null;
         if (PHP_VERSION_ID < 80000) {
             $oldEntityLoader = libxml_disable_entity_loader(true);
         }
 
-        $res = $dom->loadXML($xml, LIBXML_NOWARNING | LIBXML_NOERROR);
+        $res = $dom->loadXML($xml);
 
-        libxml_clear_errors();
-        libxml_use_internal_errors($oldErrors);
         if (PHP_VERSION_ID < 80000) {
-            /** @psalm-suppress PossiblyUndefinedVariable */
             libxml_disable_entity_loader($oldEntityLoader);
         }
 
@@ -125,8 +124,8 @@ class Utils
      */
     public static function validateXML($xml, string $schema, bool $debug = false, ?string $schemaPath = null)
     {
-        /** @psalm-suppress RedundantConditionGivenDocblockType */
         assert(is_string($xml) || $xml instanceof DOMDocument);
+        assert(is_string($schema));
 
         libxml_clear_errors();
         libxml_use_internal_errors(true);
@@ -153,7 +152,6 @@ class Utils
         }
         $res = $dom->schemaValidate($schemaFile);
         if (PHP_VERSION_ID < 80000) {
-            /** @psalm-suppress PossiblyNullArgument */
             libxml_disable_entity_loader($oldEntityLoader);
         }
         if (!$res) {
@@ -196,27 +194,17 @@ class Utils
         if ($targetNode->parentNode === null) {
             throw new Exception('Illegal argument targetNode. It has no parentNode.');
         }
-
-        if ($targetNode->ownerDocument === null) {
-            throw new Exception('Illegal argument targetNode. It has no ownerDocument.');
-        }
-
         $clonedNode = $targetNode->ownerDocument->importNode($sourceNode, false);
         if ($recurse) {
             $resultNode = $targetNode->appendChild($clonedNode);
         } else {
             $resultNode = $targetNode->parentNode->insertBefore($clonedNode, $targetNode);
         }
-
-        // The most funny thing is that, contrary to what the documentation says, childNodes can be `null`
-        // and this is exactly what happens in PHP 7.4.3 with $sourceNode being DOMText
-        /** @psalm-suppress RedundantCondition */
-        if ($sourceNode->childNodes) {
+        if ($sourceNode->childNodes !== null) {
             foreach ($sourceNode->childNodes as $child) {
                 self::treeCopyReplace($resultNode, $child, true);
             }
         }
-
         if (!$recurse) {
             $targetNode->parentNode->removeChild($targetNode);
         }
@@ -233,6 +221,10 @@ class Utils
      */
     public static function formatCert($cert, $heads = true)
     {
+        if (is_null($cert)) {
+          return;
+        }
+
         $x509cert = str_replace(array("\x0D", "\r", "\n"), "", $cert);
         if (!empty($x509cert)) {
             $x509cert = str_replace('-----BEGIN CERTIFICATE-----', "", $x509cert);
@@ -257,6 +249,10 @@ class Utils
      */
     public static function formatPrivateKey($key, $heads = true)
     {
+        if (is_null($key)) {
+          return;
+        }
+
         $key = str_replace(array("\x0D", "\r", "\n"), "", $key);
         if (!empty($key)) {
             if (strpos($key, '-----BEGIN PRIVATE KEY-----') !== false) {
@@ -296,26 +292,22 @@ class Utils
      */
     public static function getStringBetween($str, $start, $end)
     {
+        $str = ' ' . $str;
         $ini = strpos($str, $start);
 
-        if (false === $ini) {
+        if ($ini == 0) {
             return '';
         }
 
         $ini += strlen($start);
-        $fin = strpos($str, $end, $ini);
-        if (false === $fin) {
-            return '';
-        }
-
-        $len = $fin - $ini;
+        $len = strpos($str, $end, $ini) - $ini;
         return substr($str, $ini, $len);
     }
 
     /**
      * Executes a redirection to the provided url (or return the target url).
      *
-     * @param string|null $url   The target url
+     * @param string $url        The target url
      * @param array  $parameters Extra parameters to be passed as part of the url
      * @param bool   $stay       True if we want to stay (returns the url string) False to redirect
      *
@@ -335,16 +327,19 @@ class Utils
          * Verify that the URL matches the regex for the protocol.
          * By default this will check for http and https
          */
-        $wrongProtocol = !preg_match(self::$_protocolRegex, $url);
-        $filteredUrl = filter_var($url, FILTER_VALIDATE_URL);
-        if ($wrongProtocol || empty($filteredUrl)) {
+        if (isset(self::$_protocolRegex)) {
+            $protocol = self::$_protocolRegex;
+        } else {
+            $protocol = "";
+        }
+        $wrongProtocol = !preg_match($protocol, $url);
+        $url = filter_var($url, FILTER_VALIDATE_URL);
+        if ($wrongProtocol || empty($url)) {
             throw new Error(
                 'Redirect to invalid URL: ' . $url,
                 Error::REDIRECT_INVALID_URL
             );
         }
-
-        $url = $filteredUrl;
 
         /* Add encoded parameters */
         if (strpos($url, '?') === false) {
@@ -450,7 +445,7 @@ class Utils
             <html><head><meta charset="utf-8"/><title>Redirecting...</title></head>
             <body><form id="form" action="%s" method="post" enctype="application/x-www-form-urlencoded">%s
             <noscript><button type="submit">Click to continue</button></noscript></form>
-            <script>document.getElementById("form").submit();</script></body></html>', 
+            <script>document.getElementById("form").submit();</script></body></html>',
             htmlspecialchars($url, ENT_QUOTES, 'utf-8'), join('', $fields)
         );
 
@@ -665,7 +660,7 @@ class Utils
 
         // strip the port
         if (false !== strpos($currentHost, ':')) {
-            list($currentHost) = explode(':', $currentHost, 2);
+            list($currentHost, $port) = explode(':', $currentHost, 2);
         }
 
         return $currentHost;
@@ -688,7 +683,7 @@ class Utils
 
             // strip the port
             if (false !== strpos($currentHost, ':')) {
-                list(, $port) = explode(':', $currentHost, 2);
+                list($currentHost, $port) = explode(':', $currentHost, 2);
                 if (is_numeric($port)) {
                     $portnumber = $port;
                 }
@@ -836,13 +831,9 @@ class Utils
     public static function extractOriginalQueryParam($name)
     {
         $index = strpos($_SERVER['QUERY_STRING'], $name.'=');
-        if (false === $index) {
-            return '';
-        }
-
         $substring = substr($_SERVER['QUERY_STRING'], $index + strlen($name) + 1);
         $end = strpos($substring, '&');
-        return $end ? substr($substring, 0, $end) : $substring;
+        return $end ? substr($substring, 0, strpos($substring, '&')) : $substring;
     }
 
     /**
@@ -852,7 +843,7 @@ class Utils
      */
     public static function generateUniqueID()
     {
-        return 'ONELOGIN_' . bin2hex(random_bytes(20));
+        return 'ONELOGIN_' . sha1(random_bytes(20));
     }
 
     /**
@@ -866,7 +857,8 @@ class Utils
     public static function parseTime2SAML($time)
     {
         $date = new \DateTime("@$time", new \DateTimeZone('UTC'));
-        return $date->format("Y-m-d\TH:i:s\Z");
+        $timestamp = $date->format("Y-m-d\TH:i:s\Z");
+        return $timestamp;
     }
 
     /**
@@ -881,6 +873,10 @@ class Utils
      */
     public static function parseSAML2Time($time)
     {
+        if (empty($time)) {
+          return null;
+        }
+
         $matches = array();
 
         /* We use a very strict regex to parse the timestamp. */
@@ -907,7 +903,9 @@ class Utils
         /* We use gmmktime because the timestamp will always be given
          * in UTC.
          */
-        return gmmktime($hour, $minute, $second, $month, $day, $year);
+        $ts = gmmktime($hour, $minute, $second, $month, $day, $year);
+
+        return $ts;
     }
 
 
@@ -925,6 +923,9 @@ class Utils
      */
     public static function parseDuration(string $duration, ?int $timestamp = null)
     {
+        assert(is_string($duration));
+        assert(is_null($timestamp) || is_int($timestamp));
+
         $matches = array();
 
         /* Parse the duration. We use a very strict pattern. */
@@ -1097,6 +1098,8 @@ class Utils
      */
     public static function calculateX509Fingerprint(string $x509cert, $alg = 'sha1'): ?string
     {
+        assert(is_string($x509cert));
+
         $arCert = explode("\n", $x509cert);
         $data = '';
         $inData = false;
@@ -1113,7 +1116,10 @@ class Utils
                 if (strncmp($curData, '-----END CERTIFICATE', 20) == 0) {
                     break;
                 }
-                $data .= trim($curData);
+                if (isset($curData)) {
+                    $curData = trim($curData);
+                }
+                $data .= $curData;
             }
         }
 
@@ -1146,18 +1152,23 @@ class Utils
      */
     public static function formatFingerPrint($fingerprint)
     {
-        return strtolower(str_replace(':', '', $fingerprint));
+        if (is_null($fingerprint)) {
+            return;
+        }
+        $formatedFingerprint = str_replace(':', '', $fingerprint);
+        $formatedFingerprint = strtolower($formatedFingerprint);
+        return $formatedFingerprint;
     }
 
     /**
      * Generates a nameID.
      *
      * @param string      $value  fingerprint
-     * @param string|null $spnq   SP Name Qualifier
+     * @param string      $spnq   SP Name Qualifier
      * @param string|null $format SP Format
      * @param string|null $cert   IdP Public cert to encrypt the nameID
      * @param string|null $nq     IdP Name Qualifier
-     * @param string      $encAlg Encryption algorithm
+     * @param string|null $encAlg Encryption algorithm
      *
      * @return string $nameIDElement DOMElement | XMLSec nameID
      *
@@ -1206,7 +1217,6 @@ class Utils
 
             $newdoc->appendChild($encryptedID);
 
-            /** @psalm-var DOMDocument $encryptedID->ownerDocument */
             $encryptedID->appendChild($encryptedID->ownerDocument->importNode($encryptedData, true));
 
             return $newdoc->saveXML($encryptedID);
@@ -1237,28 +1247,22 @@ class Utils
             );
         }
 
-        /** @var DOMElement */
-        $context = $statusEntry->item(0);
-        $codeEntry = self::query($dom, '/samlp:Response/samlp:Status/samlp:StatusCode', $context);
+        $codeEntry = self::query($dom, '/samlp:Response/samlp:Status/samlp:StatusCode', $statusEntry->item(0));
         if ($codeEntry->length != 1) {
             throw new ValidationError(
                 "Missing Status Code on response",
                 ValidationError::MISSING_STATUS_CODE
             );
         }
-        /** @var DOMElement */
-        $item = $codeEntry->item(0);
-        $code = $item->getAttribute('Value');
+        $code = $codeEntry->item(0)->getAttribute('Value');
         $status['code'] = $code;
 
         $status['msg'] = '';
-        $messageEntry = self::query($dom, '/samlp:Response/samlp:Status/samlp:StatusMessage', $context);
+        $messageEntry = self::query($dom, '/samlp:Response/samlp:Status/samlp:StatusMessage', $statusEntry->item(0));
         if ($messageEntry->length == 0) {
-            $subCodeEntry = self::query($dom, '/samlp:Response/samlp:Status/samlp:StatusCode/samlp:StatusCode', $context);
+            $subCodeEntry = self::query($dom, '/samlp:Response/samlp:Status/samlp:StatusCode/samlp:StatusCode', $statusEntry->item(0));
             if ($subCodeEntry->length == 1) {
-                /** @var DOMElement $item */
-                $item = $subCodeEntry->item(0);
-                $status['msg'] = $item->getAttribute('Value');
+                $status['msg'] = $subCodeEntry->item(0)->getAttribute('Value');
             }
         } else if ($messageEntry->length == 1) {
             $msg = $messageEntry->item(0)->textContent;
@@ -1321,7 +1325,6 @@ class Utils
                 );
             }
 
-            /** @var XMLSecEnc */
             $encKey = $symmetricKeyInfo->encryptedCtx;
             $symmetricKeyInfo->key = $inputKey->key;
             $keySize = $symmetricKey->getSymmetricKeySize();
@@ -1333,14 +1336,12 @@ class Utils
                 );
             }
 
-            /** @var string $key */
             $key = $encKey->decryptKey($symmetricKeyInfo);
             if (strlen($key) != $keySize) {
                 $encryptedKey = $encKey->getCipherValue();
-                /** @var resource $symmetricKeyInfo->key */
                 $pkey = openssl_pkey_get_details($symmetricKeyInfo->key);
-                $pkey = hash('sha256', serialize($pkey), true);
-                $key = hash('sha256', (string)$encryptedKey . $pkey, true);
+                $pkey = sha1(serialize($pkey), true);
+                $key = sha1($encryptedKey . $pkey, true);
 
                 /* Make sure that the key has the correct length. */
                 if (strlen($key) > $keySize) {
@@ -1363,7 +1364,6 @@ class Utils
             $symmetricKey = $inputKey;
         }
 
-        /** @var string */
         $decrypted = $enc->decryptNode($symmetricKey, false);
 
         $xml = '<root xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'.$decrypted.'</root>';
@@ -1380,10 +1380,6 @@ class Utils
             );
         }
 
-        /**
-         * @var DOMElement|null $decryptedElement
-         * @psalm-var DOMElement $newDoc->firstChild
-         */
         $decryptedElement = $newDoc->firstChild->firstChild;
         if ($decryptedElement === null) {
             throw new ValidationError(
@@ -1401,7 +1397,6 @@ class Utils
       * @param XMLSecurityKey $key       The key.
       * @param string         $algorithm The desired algorithm.
       * @param string         $type      Public or private key, defaults to public.
-      * @psalm-param 'public'|'private' $type
       *
       * @return XMLSecurityKey The new key.
       *
@@ -1409,6 +1404,9 @@ class Utils
       */
     public static function castKey(XMLSecurityKey $key, string $algorithm, string $type = 'public')
     {
+        assert(is_string($algorithm));
+        assert($type === 'public' || $type === 'private');
+
         // do nothing if algorithm is already the type of the key
         if ($key->type === $algorithm) {
             return $key;
@@ -1416,10 +1414,6 @@ class Utils
 
         if (!Utils::isSupportedSigningAlgorithm($algorithm)) {
             throw new Exception('Unsupported signing algorithm.');
-        }
-
-        if (!is_resource($key->key)) {
-            throw new InvalidArgumentException('$key->key is not a resource');
         }
 
         $keyInfo = openssl_pkey_get_details($key->key);
@@ -1483,7 +1477,6 @@ class Utils
         $objKey->loadKey($key, false);
 
         /* Get the EntityDescriptor node we should sign. */
-        /** @var DOMElement */
         $rootNode = $dom->firstChild;
 
         /* Sign the metadata with our private key. */
@@ -1515,16 +1508,18 @@ class Utils
         $objXMLSecDSig->insertSignature($rootNode, $insertBefore);
 
         /* Return the DOM tree as a string. */
-        return $dom->saveXML();
+        $signedxml = $dom->saveXML();
+
+        return $signedxml;
     }
 
     /**
      * Validates a signature (Message or Assertion).
      *
-     * @param string|\DOMElement|\DOMDocument $xml The element we should validate
+     * @param string|\DomNode   $xml            The element we should validate
      * @param string|null       $cert           The public cert
      * @param string|null       $fingerprint    The fingerprint of the public cert
-     * @param string            $fingerprintalg The algorithm used to get the fingerprint
+     * @param string|null       $fingerprintalg The algorithm used to get the fingerprint
      * @param string|null       $xpath          The xpath of the signed element
      * @param array|null        $multiCerts     Multiple public certs
      *
@@ -1537,15 +1532,10 @@ class Utils
         if ($xml instanceof DOMDocument) {
             $dom = clone $xml;
         } else if ($xml instanceof DOMElement) {
-            assert($xml->ownerDocument !== null);
             $dom = clone $xml->ownerDocument;
         } else {
             $dom = new DOMDocument();
             $dom = self::loadXML($dom, $xml);
-
-            if (!$dom) {
-                throw new ValidationError('Bad XML', ValidationError::INVALID_XML_FORMAT);
-            }
         }
 
         $objXMLSecDSig = new XMLSecurityDSig();
@@ -1553,7 +1543,6 @@ class Utils
 
         if ($xpath) {
             $nodeset = Utils::query($dom, $xpath);
-            /** @var DOMElement|null */
             $objDSig = $nodeset->item(0);
             $objXMLSecDSig->sigNode = $objDSig;
         } else {
@@ -1574,7 +1563,12 @@ class Utils
         }
 
         $objXMLSecDSig->canonicalizeSignedInfo();
-        $objXMLSecDSig->validateReference();
+
+        try {
+            $retVal = $objXMLSecDSig->validateReference();
+        } catch (Exception $e) {
+            throw $e;
+        }
 
         XMLSecEnc::staticLocateKeyInfo($objKey, $objDSig);
 
