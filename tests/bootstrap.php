@@ -46,7 +46,7 @@ if (!function_exists('getParamsFromUrl')) {
     *
     * @return array $parsedQuery Parsed query of the url
     */
-    function getParamsFromUrl($url)
+    function getParamsFromUrl(string $url)
     {
         $parsedQuery = null;
         $parsedUrl = parse_url($url);
