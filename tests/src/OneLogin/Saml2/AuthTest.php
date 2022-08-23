@@ -538,7 +538,6 @@ class AuthTest extends \PHPUnit\Framework\TestCase
             $_SESSION = array();
         }
         $_SESSION['samltest'] = true;
-
         $this->_auth->setStrict(true);
         $this->_auth->processSLO(true);
 
@@ -939,7 +938,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
         $settingsInfo['idp']['singleSignOnService']['binding'] = Constants::BINDING_HTTP_POST;
         $auth = new Auth($settingsInfo);
         $result = $auth->login(null, array(), false, false, true);
-        
+
         $this->assertIsArray($result);
         $this->assertEquals(2, count($result));
         $this->assertArrayHasKey(0, $result);
@@ -1907,5 +1906,36 @@ class AuthTest extends \PHPUnit\Framework\TestCase
         $_GET['SAMLResponse'] = file_get_contents(TEST_ROOT . '/data/logout_responses/logout_response.xml.base64');
         $this->_auth->processSLO(false, null, false, null, true);
         $this->assertEquals('_f9ee61bd9dbf63606faa9ae3b10548d5b3656fb859', $this->_auth->getLastMessageId());
+    }
+
+    /**
+     * Tests the checkSettings method of the OneLogin_Saml2_Settings when SpValidateOnly is false and IdP is not defined
+     *
+     * @covers OneLogin_Saml2_Settings::checkSettings
+     */
+    public function testSpValidateOnlyIsTrue()
+    {
+        $settingsDir = TEST_ROOT . '/settings/';
+        include $settingsDir . 'settings2.php';
+        unset($settingsInfo['idp']);
+        $settings = new Settings($settingsInfo, true);
+        $this->assertEmpty($settings->getErrors());
+    }
+
+    /**
+     * Tests the checkSettings method of the OneLogin_Saml2_Settings when SpValidateOnly is false and IdP is not defined
+     *
+     * @covers OneLogin_Saml2_Settings::checkSettings
+     */
+    public function testSpValidateOnlyIsFalse()
+    {
+        $settingsDir = TEST_ROOT . '/settings/';
+        include $settingsDir . 'settings2.php';
+        unset($settingsInfo['idp']);
+        try {
+            $settings = new Settings($settingsInfo);
+        } catch (Error $e) {
+            $this->assertStringContainsString('idp_not_found', $e->getMessage());
+        }
     }
 }
