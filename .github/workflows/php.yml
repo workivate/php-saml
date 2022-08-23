@@ -83,7 +83,7 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Run phpstan
-        run: /vendor/bin/phpstan analyse --memory-limit=-1 -c phpstan.neon
+        run: ./vendor/bin/phpstan analyse --memory-limit=-1 -c phpstan.neon
 
   sonarcloud:
     runs-on: ubuntu-latest
