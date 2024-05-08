@@ -18,5 +18,3 @@ WORKDIR /app
 CMD bash -c "composer install \
     && vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 1G \
     && vendor/bin/phpunit"
-
-CMD bash -c "echo 'Hello World'; tail -f /dev/null"
