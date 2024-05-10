@@ -201,6 +201,11 @@ parameters:
 			path: tests/src/OneLogin/Saml2/IdPMetadataParserTest.php
 
 		-
+			message: "#^Cannot unset offset 'x509cert' on array\\{certFingerprint\\: 'afe71c28ef740bc8742…'\\}\\.$#"
+			count: 1
+			path: tests/src/OneLogin/Saml2/LogoutRequestTest.php
+
+		-
 			message: "#^Undefined variable\\: \\$settingsInfo$#"
 			count: 12
 			path: tests/src/OneLogin/Saml2/LogoutRequestTest.php
@@ -309,8 +314,3 @@ parameters:
 			message: "#^Undefined variable\\: \\$settingsInfo$#"
 			count: 13
 			path: tests/src/OneLogin/Saml2/UtilsTest.php
-
-		-
-		    message: "#^Unreachable statement \\- code above always terminates\\.$#"
-		    count: 2
-		    path: tests/src/OneLogin/Saml2/LogoutRequestTest.php

@@ -6,12 +6,13 @@ RUN apt-get update -y && apt-get install -y \
     git \
     libzip-dev \
     unzip \
-    libicu-dev
+    libicu-dev \
+    libmcrypt-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-install pdo_mysql mysqli intl
+RUN docker-php-ext-install intl
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-RUN curl -sS https://get.symfony.com/cli/installer | bash
 
 WORKDIR /app
 

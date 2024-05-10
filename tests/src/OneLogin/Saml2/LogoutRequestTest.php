@@ -731,16 +731,14 @@ class LogoutRequestTest extends \PHPUnit\Framework\TestCase
      */
     public function testIsInValidSign()
     {
-        $this->markTestSkipped('The test is failing because of wrong SAMLRequest data');
-
         $currentURL = Utils::getSelfURLNoQuery();
 
         $this->_settings->setStrict(false);
-        $_GET = array(
-            'SAMLRequest' => 'lVLBitswEP0Vo7tjWbZkSyReFkIhsN1tm6WHvQTZHmdFbUmVZLqfXylpIS10oZdhGM17b96Mtl4usxUP5mzW8AW+r+BD9rbM2ovLyw6tTgsjvfJCywW8CIM43n98EGSDhXUmmMHM6AbyPkJ6Dy4oo1F22O/QiWM2EtlMlMmqodAA9DVuGNTVVLG25GSop7YlDRCUfQXnI3KHIlGEe7/CQfsgdYglXNY5rnKCn0smCBOUvKBsH90oLcMF9RqC9aIorAr9On/baJMruzHuXGj4YTTM5qx0McJiykLpEd429tXe+dmj7NGEJ/3k7qcALmlxnmOek/KZlKK+anXbZF5cpnLdv7W8WuwMqbdIgRRqtMUCQY4yyKS4LW6JrqyPcY+HfXb8lJLPq5zVpNIk/2PpVgNlH4xbZHj/Vqmixny6tIrgpPYKdEDdaepJPxJKakYrhodq6GnJK6howyhvMRtipDHth19urgaubqw4gk+HPKQldycYW0JGwod49Xh5KnFF2sjV17KlZMCk7mveRx1+JfsL/7v4xxfufgI=',
+        $_GET = array (
+            'SAMLRequest' => 'lVLBitswEP0Vo7tjWbJkSyReFkIhsN1tm6WHvQTZHmdFbUmVZLqfXzlpIS10oZdhGM17b96MtkHNk5MP9myX+AW+LxBi9jZPJsjLyw4t3kirgg7SqBmCjL083n98kGSDpfM22t5O6AbyPkKFAD5qa1B22O/QSWA+EFWPjCtaM6gBugrXHCo6Ut6UgvTV2DSkBoKyr+BDQu5QIkrwEBY4mBCViamEyyrHNCf4ueSScMnIC8r2yY02Kl5QrzG6IIvC6dgt07eNsbl2G+vPhYEf1sBkz9oUA8y2LLQZ4G3jXt1dmALKHm18Mk/+fozgk5YQNMciJ+UzKWV11Wq3q3l5mcq3/9YKenYTrL3FGkihB1fMENWgoloVt8Ut0ZX1Me3xsM+On9bk86ImPep1kv+xdKuBsg/Wzyq+f6u1ood8vLTK6JUJGkxE7WnsSDcQRirOKMc97TtWCgqU1ZyJBvM+RZbSrv/l5mrg6sbJI4T1kId1ye0JhoaQgYg+XT1dnilMSZO4uko1jPSYVF0luqQjrmR/4X8X//jC7U8=',
             'RelayState' => '_1037fbc88ec82ce8e770b2bed1119747bb812a07e6',
             'SigAlg' => 'http://www.w3.org/2000/09/xmldsig#rsa-sha1',
-            'Signature' => 'XCwCyI5cs7WhiJlB5ktSlWxSBxv+6q2xT3c8L7dLV6NQG9LHWhN7gf8qNsahSXfCzA0Ey9dp5BQ0EdRvAk2DIzKmJY6e3hvAIEp1zglHNjzkgcQmZCcrkK9Czi2Y1WkjOwR/WgUTUWsGJAVqVvlRZuS3zk3nxMrLH6f7toyvuJc='
+            'Signature' => 'j/qDRTzgQw3cMDkkSkBOShqxi3t9qJxYnrADqwAECnJ3Y+iYgT33C0l/Vy3+ooQkFRyObYJqg9o7iIcMdgV6CXxpa6itVIUAI2VJewsMjzvJ4OdpePeSx7+/umVPKCfMvffsELlqo/UgxsyRZh8NMLej0ojCB7bUfIMKsiU7e0c='
         );
 
         $request = gzinflate(base64_decode($_GET['SAMLRequest']));
@@ -836,13 +834,11 @@ class LogoutRequestTest extends \PHPUnit\Framework\TestCase
      */
     public function testIsValidSignUsingX509certMulti()
     {
-        $this->markTestSkipped('The test is failing because of wrong SAMLRequest data');
-
         $_GET = array(
-            'SAMLRequest' => 'fZJNa+MwEIb/itHdiTz6sCUSQyEsBPoB27KHXoIsj7cGW3ItGfLzV7G7kN1DL2KYmeedmRcdghmHST/6336JP/FzwRCz6zi4oNfKkSyz096EPmhnRgw6Wv368PSoYUf1NPvorR/IHfI9YULAOfbekex8OpKLorIFU3ZCGlYKLBEbTkuJnHVMVoUCy7uqghKBZL9wDok8kiSU8BAWPLsQjYspRQueU5YDfSukBqkFvJPslK7pnYkr9RHjpPf7EJeu21k/7tG1k+9dDHdRGMJu+phI9uzji3uZH7qI801eqZyqHIo3KDTf5OvD7V69LjLXX/J9O+3wasZpwHXIYX/ftBHPyZbzKfvh59HE7/26Zfo279ZWHWfjQo8ukvrSNdC0IIBLwSS1zDaiUAyZKKVQFZU2vSKFjf1aYZu6rTDpVww3M8+uxWt9wbYCaEHZ5HxyXxjKoEpaDTeVAEuBN1w1aY7axP7j/yb/+Ub1Hw==',
+            'SAMLRequest' => 'fZJNa+MwEIb/ivHdiTyyZEskhkJYCPQDtmUPvQRZHm8NtqRKMuTnr2J3IbuHXsQwM887My86BDVPTj7a33aJP/FzwRCz6zyZINfKMV+8kVaFMUijZgwyavn68PQoYUek8zZabaf8DvmeUCGgj6M1eXY+HfOLILwHVQ+MK1ozrBG7itQcKzpQ3pQCdDU0DdQIefYLfUjkMU9CCQ9hwbMJUZmYUqSsCkILIG8ll8Alg/c8O6VrRqPiSn3E6OR+H+IyDDtt5z2a3tnRxHAXhSns3IfLs2cbX8yLfxgi+iQvBC2IKKB8g1JWm3x7uN0r10V8+yU/9m6HVzW7Cdchh/1900Y8J1vOp+yH9bOK3/t1y4x9MaytMnplwogm5u1l6KDrgUHFGeVEU92xUlCkrOZMNITr9LIUdvprhW3qtoKTrxhuZp5Nj9f2gn0D0IPQyfnkPlOEQpO0uko1DDSBqqtEl+aITew//m/yn2/U/gE=',
             'RelayState' => '_1037fbc88ec82ce8e770b2bed1119747bb812a07e6',
             'SigAlg' => 'http://www.w3.org/2000/09/xmldsig#rsa-sha1',
-            'Signature' => 'Ouxo9BV6zmq4yrgamT9EbSKy/UmvSxGS8z26lIMgKOEP4LFR/N23RftdANmo4HafrzSfA0YTXwhKDqbOByS0j+Ql8OdQOes7vGioSjo5qq/Bi+5i6jXwQfphnfcHAQiJL4gYVIifkhhHRWpvYeiysF1Y9J02me0izwazFmoRXr4='
+            'Signature' => 'L2YrP7Ngms1ew8va4drALt9bjK4ZInIS8V6W3HUSlvW/Hw2VD93vy1jPdDBsrRt8cLIuAkkHatemiq1bbgWyrGqlbX5VA/klRYJvHVowfUh2vuf8s17bdFWUOlsTWXxKaA2lJl93MnzJQsZrfVeCqJrcTsSFlYYbcqr/g5Kdcgg='
         );
 
         $settingsDir = TEST_ROOT .'/settings/';
