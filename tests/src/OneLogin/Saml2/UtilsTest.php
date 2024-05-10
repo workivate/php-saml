@@ -898,7 +898,7 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
 
         $expectedNameId = '<saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">ONELOGIN_ce998811003f4e60f8b07a311dc641621379cfde</saml:NameID>';
 
-        $this->assertEquals($nameId, $expectedNameId);
+        $this->assertEquals($expectedNameId, $nameId);
 
         $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
