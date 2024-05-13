@@ -21,11 +21,6 @@ parameters:
 			path: src/Saml2/IdPMetadataParser.php
 
 		-
-			message: "#^Offset 'encryption' does not exist on array\\{\\}\\|array\\{encryption\\?\\: non\\-empty\\-array\\<int, string\\>, signing\\?\\: non\\-empty\\-array\\<int, string\\>\\}\\.$#"
-			count: 1
-			path: src/Saml2/IdPMetadataParser.php
-
-		-
 			message: "#^Access to an undefined property DOMNode\\:\\:\\$tagName\\.$#"
 			count: 3
 			path: src/Saml2/Response.php
@@ -56,43 +51,18 @@ parameters:
 			path: src/Saml2/Response.php
 
 		-
-			message: "#^Variable \\$destination in isset\\(\\) always exists and is not nullable\\.$#"
-			count: 1
-			path: src/Saml2/Response.php
-
-		-
 			message: "#^Variable \\$noa might not be defined\\.$#"
 			count: 1
 			path: src/Saml2/Response.php
 
 		-
-			message: "#^Variable \\$value in isset\\(\\) always exists and is not nullable\\.$#"
-			count: 1
-			path: src/Saml2/Response.php
-
-		-
-			message: "#^Undefined variable\\: \\$advancedSettings$#"
-			count: 1
-			path: src/Saml2/Settings.php
-
-		-
-			message: "#^Undefined variable\\: \\$settings$#"
-			count: 1
-			path: src/Saml2/Settings.php
-
-		-
-			message: "#^Variable \\$advancedSettings in PHPDoc tag @var does not exist\\.$#"
-			count: 1
-			path: src/Saml2/Settings.php
-
-		-
-			message: "#^Variable \\$settings in PHPDoc tag @var does not exist\\.$#"
-			count: 1
-			path: src/Saml2/Settings.php
+		    message: "#^Variable \\$settings in PHPDoc tag @var does not exist\\.$#"
+		    count: 1
+		    path: src/Saml2/Settings.php
 
 		-
 			message: "#^Variable \\$settings might not be defined\\.$#"
-			count: 1
+			count: 2
 			path: src/Saml2/Settings.php
 
 		-
@@ -141,11 +111,6 @@ parameters:
 			path: src/Saml2/Utils.php
 
 		-
-			message: "#^Result of \\|\\| is always true\\.$#"
-			count: 1
-			path: src/Saml2/Utils.php
-
-		-
 			message: "#^Static property OneLogin\\\\Saml2\\\\Utils\\:\\:\\$_protocolRegex \\(string\\) in isset\\(\\) is not nullable\\.$#"
 			count: 1
 			path: src/Saml2/Utils.php
@@ -161,59 +126,29 @@ parameters:
 			path: tests/src/OneLogin/Saml2/AuthTest.php
 
 		-
-			message: "#^Call to function unset\\(\\) contains undefined variable \\$settingsInfo\\.$#"
-			count: 3
-			path: tests/src/OneLogin/Saml2/AuthTest.php
-
-		-
 			message: "#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertFalse\\(\\) with true will always evaluate to false\\.$#"
 			count: 29
 			path: tests/src/OneLogin/Saml2/AuthTest.php
 
 		-
-			message: "#^Offset 'idp' does not exist on array\\{security\\: array\\{authnRequestsSigned\\: true\\}\\}\\.$#"
-			count: 7
+			message: "#^Variable \\$settingsInfo might not be defined\\.$#"
+			count: 11
 			path: tests/src/OneLogin/Saml2/AuthTest.php
 
 		-
-			message: "#^Offset 'idp' does not exist on array\\{security\\: array\\{logoutRequestSigned\\: true\\}\\}\\.$#"
-			count: 1
-			path: tests/src/OneLogin/Saml2/AuthTest.php
-
-		-
-			message: "#^Offset 'idp' does not exist on array\\{sp\\: array\\{NameIDFormat\\: 'urn\\:oasis\\:names\\:tc…'\\}\\}\\.$#"
-			count: 1
-			path: tests/src/OneLogin/Saml2/AuthTest.php
-
-		-
-			message: "#^Undefined variable\\: \\$settingsInfo$#"
-			count: 12
-			path: tests/src/OneLogin/Saml2/AuthTest.php
-
-		-
-			message: "#^Undefined variable\\: \\$settingsInfo$#"
+			message: "#^Variable \\$settingsInfo might not be defined\\.$#"
 			count: 11
 			path: tests/src/OneLogin/Saml2/AuthnRequestTest.php
 
 		-
-			message: "#^Undefined variable\\: \\$settingsInfo$#"
+			message: "#^Variable \\$settingsInfo might not be defined\\.$#"
 			count: 2
 			path: tests/src/OneLogin/Saml2/IdPMetadataParserTest.php
 
 		-
-			message: "#^Cannot unset offset 'x509cert' on array\\{certFingerprint\\: 'afe71c28ef740bc8742…'\\}\\.$#"
-			count: 1
-			path: tests/src/OneLogin/Saml2/LogoutRequestTest.php
-
-		-
-			message: "#^Undefined variable\\: \\$settingsInfo$#"
+			message: "#^Variable \\$settingsInfo might not be defined\\.$#"
 			count: 12
 			path: tests/src/OneLogin/Saml2/LogoutRequestTest.php
-
-		-
-			message: "#^Cannot unset offset 'x509cert' on array\\{certFingerprint\\: 'afe71c28ef740bc8742…'\\}\\.$#"
-			count: 1
-			path: tests/src/OneLogin/Saml2/LogoutResponseTest.php
 
 		-
 			message: "#^Method OneLogin\\\\Saml2\\\\LogoutResponse\\:\\:getIssuer\\(\\) invoked with 1 parameter, 0 required\\.$#"
@@ -221,7 +156,7 @@ parameters:
 			path: tests/src/OneLogin/Saml2/LogoutResponseTest.php
 
 		-
-			message: "#^Undefined variable\\: \\$settingsInfo$#"
+			message: "#^Variable \\$settingsInfo might not be defined\\.$#"
 			count: 8
 			path: tests/src/OneLogin/Saml2/LogoutResponseTest.php
 
@@ -231,7 +166,7 @@ parameters:
 			path: tests/src/OneLogin/Saml2/MetadataTest.php
 
 		-
-			message: "#^Undefined variable\\: \\$settingsInfo$#"
+			message: "#^Variable \\$settingsInfo might not be defined\\.$#"
 			count: 8
 			path: tests/src/OneLogin/Saml2/MetadataTest.php
 
@@ -241,39 +176,14 @@ parameters:
 			path: tests/src/OneLogin/Saml2/MetadataTest.php
 
 		-
-			message: "#^Call to function unset\\(\\) contains undefined variable \\$settingsInfo\\.$#"
-			count: 1
-			path: tests/src/OneLogin/Saml2/ResponseTest.php
-
-		-
 			message: "#^Cannot call method getMessage\\(\\) on null\\.$#"
 			count: 1
 			path: tests/src/OneLogin/Saml2/ResponseTest.php
 
 		-
-			message: "#^Undefined variable\\: \\$settingsInfo$#"
+			message: "#^Variable \\$settingsInfo might not be defined\\.$#"
 			count: 3
 			path: tests/src/OneLogin/Saml2/ResponseTest.php
-
-		-
-			message: "#^Call to function unset\\(\\) contains undefined variable \\$settingsInfo\\.$#"
-			count: 5
-			path: tests/src/OneLogin/Saml2/SettingsTest.php
-
-		-
-			message: "#^Cannot access offset 'keyFileName' on false\\.$#"
-			count: 1
-			path: tests/src/OneLogin/Saml2/SettingsTest.php
-
-		-
-			message: "#^Cannot unset offset 'sp' on array\\{idp\\: array\\{certFingerprint\\: 'afe71c28ef740bc8742…'\\}\\}\\.$#"
-			count: 1
-			path: tests/src/OneLogin/Saml2/SettingsTest.php
-
-		-
-			message: "#^Cannot unset offset 'x509cert' on array\\{certFingerprint\\: 'AF\\:E7\\:1C\\:28\\:EF\\:74…'\\}\\.$#"
-			count: 1
-			path: tests/src/OneLogin/Saml2/SettingsTest.php
 
 		-
 			message: "#^Dead catch \\- Error is never thrown in the try block\\.$#"
@@ -281,12 +191,7 @@ parameters:
 			path: tests/src/OneLogin/Saml2/SettingsTest.php
 
 		-
-			message: "#^Offset 'security' on array\\{security\\: array\\{signMetadata\\: true\\}\\} in isset\\(\\) always exists and is not nullable\\.$#"
-			count: 1
-			path: tests/src/OneLogin/Saml2/SettingsTest.php
-
-		-
-			message: "#^Undefined variable\\: \\$settingsInfo$#"
+			message: "#^Variable \\$settingsInfo might not be defined\\.$#"
 			count: 28
 			path: tests/src/OneLogin/Saml2/SettingsTest.php
 
@@ -296,12 +201,7 @@ parameters:
 			path: tests/src/OneLogin/Saml2/SettingsTest.php
 
 		-
-			message: "#^Variable \\$settingsInfo in isset\\(\\) is never defined\\.$#"
-			count: 2
-			path: tests/src/OneLogin/Saml2/SettingsTest.php
-
-		-
-			message: "#^Undefined variable\\: \\$settingsInfo$#"
+			message: "#^Variable \\$settingsInfo might not be defined\\.$#"
 			count: 1
 			path: tests/src/OneLogin/Saml2/SignedResponseTest.php
 
@@ -311,6 +211,6 @@ parameters:
 			path: tests/src/OneLogin/Saml2/UtilsTest.php
 
 		-
-			message: "#^Undefined variable\\: \\$settingsInfo$#"
+			message: "#^Variable \\$settingsInfo might not be defined\\.$#"
 			count: 13
 			path: tests/src/OneLogin/Saml2/UtilsTest.php

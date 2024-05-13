@@ -1755,8 +1755,6 @@ class AuthTest extends \PHPUnit\Framework\TestCase
      *
      * @covers OneLogin\Saml2\Auth::getLastResponseXML()
      *
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
      */
     public function testGetLastSAMLResponse()
     {
